@@ -227,6 +227,12 @@
                     <p class="text-[10px] text-slate-500">호선별 일정 스케줄과 공지사항 전체를 통합하여 전송 및 백업할 수 있는 JSON 규격입니다.</p>
                 </div>
                 <div class="flex space-x-2">
+                    <button onclick="fetchServerData()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1">
+                        <i class="fa-solid fa-cloud-arrow-down text-indigo-600"></i> 서버 데이터 불러오기
+                    </button>
+                    <button onclick="saveServerData()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1">
+                        <i class="fa-solid fa-cloud-arrow-up text-emerald-600"></i> 현재 상태 서버에 저장
+                    </button>
                     <button onclick="copyDataToClipboard()" class="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">
                         현재 데이터 클립보드 복사
                     </button>
@@ -1599,6 +1605,77 @@
             } catch (err) {
                 showToast("⚠️ JSON 파싱에 오류가 발생했습니다. 백업 텍스트를 다시 확인해 주세요.");
             }
+        }
+
+        // 🌐 [실서버 SQL DB 연동용 설계 블록]
+        // 1. 서버로부터 최신 스케줄 및 공지사항 JSON 데이터를 비동기로 패치
+        async function fetchServerData() {
+            showToast("🌐 서버로부터 데이터를 조회하는 중입니다...");
+            
+            // 실제 SQL 서버 연동 시 아래 API 주소를 적절한 엔드포인트로 매핑하여 주석을 해제하세요.
+            /*
+            try {
+                const response = await fetch('/api/get-schedule');
+                if (!response.ok) throw new Error('서버 네트워크 오류');
+                const parsed = await response.json();
+                
+                if (parsed && parsed.projects && parsed.announcements) {
+                    projects = parsed.projects;
+                    ensureProjectDataIntegrity(projects);
+                    announcements = parsed.announcements;
+                    
+                    // 로컬스토리지 백업 동기화
+                    localStorage.setItem('dome_dock_tank_projects_v90', JSON.stringify(projects));
+                    localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
+                    
+                    renderAnnouncements();
+                    analyzeAndRender();
+                    showToast("📥 SQL 데이터베이스로부터 최신 일정이 실시간 동기화되었습니다!");
+                }
+            } catch (err) {
+                console.error("서버 데이터 로드 실패:", err);
+                showToast("❌ 서버 연동 실패: 백엔드 API 연결 상태를 확인하세요.");
+            }
+            */
+            
+            // 현재는 백엔드가 준비되지 않았으므로 Mock 안내 처리
+            setTimeout(() => {
+                showToast("ℹ️ 서버 연동 블록이 실행되었습니다. (상세 소스코드는 fetchServerData() 주석을 확인하세요.)");
+            }, 1000);
+        }
+
+        // 2. 현재 상태를 서버(SQL DB)에 전송하여 영구 보존
+        async function saveServerData() {
+            showToast("🌐 서버에 데이터 저장을 요청하는 중입니다...");
+            
+            const payload = {
+                projects: projects,
+                announcements: announcements
+            };
+            
+            // 실제 SQL 서버 연동 시 아래 API 주소를 적절한 POST 엔드포인트로 매핑하여 주석을 해제하세요.
+            /*
+            try {
+                const response = await fetch('/api/save-schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error('서버 저장 실패');
+                const result = await response.json();
+                showToast("💾 현재 일정이 SQL 데이터베이스에 성공적으로 안전하게 저장되었습니다!");
+            } catch (err) {
+                console.error("서버 데이터 저장 실패:", err);
+                showToast("❌ 서버 저장 실패: 백엔드 API 연결 상태를 확인하세요.");
+            }
+            */
+            
+            setTimeout(() => {
+                showToast("ℹ️ 서버 저장 블록이 실행되었습니다. (상세 소스코드는 saveServerData() 주석을 확인하세요.)");
+            }, 1000);
         }
 
         // 외부 웹앱 독립 창 호출 함수
