@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L/Dome Cover 관리 시스템</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 아이콘 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', 'Inter', sans-serif;
+        }
+
+        /* 1년짜리 대형 그리드 가로 스크롤 최적화 */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 6px;
+            border: 2px solid #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* 365일 캘린더 그리드 비율 선언 (호선 정보 컬럼: 280px, 일별 셀 폭: 52px) */
+        .gantt-365-layout {
+            display: grid;
+            grid-template-columns: 280px repeat(365, 52px);
+        }
+
+        /* 호선 정보 틀고정 */
+        .sticky-col-left {
+            position: sticky;
+            left: 0;
+            z-index: 25;
+            background-color: #ffffff;
+            border-right: 3px solid #cbd5e1;
+        }
+        .sticky-header-top-left {
+            position: sticky;
+            left: 0;
+            top: 0;
+            z-index: 45;
+            background-color: #f1f5f9;
+            border-right: 3px solid #cbd5e1;
+            border-bottom: 3px solid #94a3b8;
+        }
+        .sticky-header-top {
+            position: sticky;
+            top: 0;
+            z-index: 35;
+            background-color: #f8fafc;
+            border-bottom: 3px solid #94a3b8;
+        }
+
+        /* 🚨 선명한 토/일 주말 및 국가 공휴일 하이라이트 배경 */
+        .weekend-bg-highlight {
+            background-color: #ffe4e6 !important; /* 연로즈 핑크 */
+        }
+        .holiday-text-highlight {
+            color: #e11d48 !important;
+            font-weight: 900 !important;
+        }
+
+        /* 기호 도형 마커 스타일 정의 */
+        .marker-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+        }
+        .marker-diamond {
+            width: 12px;
+            height: 12px;
+            transform: rotate(45deg);
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+        }
+
+        /* 공정 연결 가로선 */
+        .timeline-bar-line {
+            height: 4px;
+            border-radius: 2px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-2px);
+            z-index: 5;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen antialiased selection:bg-slate-200">
+
+    <!-- 통합 상단 관제 헤더 -->
+    <header class="border-b-2 border-slate-300 bg-white sticky top-0 z-50 px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center space-x-3">
+            <div class="bg-slate-800 p-3 rounded-xl text-white shadow-md">
+                <i class="fa-solid fa-industry text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="font-black text-lg text-slate-950 tracking-tight">L/Dome Cover 관리시스템</h1>
+                <p class="text-xs text-slate-600 font-bold">copyright 2026.5.29 ch.s.Park</p>
+            </div>
+        </div>
+        
+        <!-- 실시간 오늘 날짜 연동 인디케이터, 관리자 모드 토글, 외부 웹앱 호출 -->
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- 🌐 외부 웹앱 호출 독립 버튼 2개 -->
+            <button onclick="openExternalApp('https://homepidol.github.io/PT')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl px-3 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
+                <i class="fa-solid fa-arrow-up-right-from-square text-indigo-600"></i>
+                <span>직무교육일정</span>
+            </button>
+            <button onclick="openExternalApp('https://www.wikipedia.org')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl px-3 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
+                <i class="fa-solid fa-square-poll-vertical text-emerald-600"></i>
+                <span>생산 모니터링 웹앱</span>
+            </button>
+            
+            <button onclick="scrollToToday()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl px-4 py-2 text-xs font-black transition shadow-sm">
+                <i class="fa-solid fa-crosshairs mr-1"></i> 오늘로 이동
+            </button>
+            <div class="bg-rose-50 border border-rose-200 rounded-xl px-4 py-2 text-xs flex items-center space-x-2 text-rose-700 font-extrabold shadow-sm">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-600"></span>
+                </span>
+                <span id="live-today-text">오늘: 불러오는 중...</span>
+            </div>
+            <!-- 🔒 관리자 모드 전환 스위치 -->
+            <button id="admin-mode-toggle" onclick="toggleAdminMode()" class="bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-700 rounded-xl px-4 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
+                <i id="admin-mode-icon" class="fa-solid fa-lock"></i>
+                <span id="admin-mode-text">관리자 모드 OFF</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 📢 작업장 주요 공지 사항 (Announcement Board - 스크롤시 헤더 밑에 고정 배치) -->
+    <section class="sticky top-[78px] z-40 bg-white/95 backdrop-blur-md border-b-2 border-slate-300 px-12 py-8 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex items-center space-x-5 shrink-0">
+            <div class="flex items-center space-x-3">
+                <span class="text-amber-600 text-2xl"><i class="fa-solid fa-bullhorn animate-bounce"></i></span>
+                <h2 class="text-base md:text-lg font-black text-slate-950 uppercase tracking-wider">작업장 공지</h2>
+            </div>
+            <!-- ℹ️ 공정 기준 안내 버튼 -->
+            <button onclick="openRulesModal()" class="text-xs bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 px-3 py-1.5 rounded-xl font-black transition flex items-center space-x-1.5 shadow-sm">
+                <i class="fa-solid fa-circle-info text-amber-600"></i>
+                <span>공정 기준 안내</span>
+            </button>
+            <!-- 공지 등록 버튼 (관리자 모드에서만 노출 - 공지생성 버튼) -->
+            <button id="admin-add-announce-btn" onclick="openAnnounceModal()" class="hidden bg-amber-600 hover:bg-amber-500 text-white px-4 py-1.5 rounded-xl text-xs font-black transition shadow-sm">
+                <i class="fa-solid fa-plus mr-1"></i>공지생성
+            </button>
+        </div>
+        <!-- 공지 리스트 (가로 폭 90% 조정, 4개 초과 시 스크롤 max-h-[275px] 제한, 간격 space-y-2 적용) -->
+        <div id="announcement-board-list" class="flex-1 min-w-0 max-w-[90%] w-full space-y-2 pr-2 max-h-[275px] overflow-y-auto relative">
+            <!-- JS 동적 추가 -->
+        </div>
+    </section>
+
+    <main class="p-6 space-y-6 max-w-[1800px] mx-auto">
+
+        <!-- 📊 마일스톤 연간 간트 차트 (365일 관제 격자판 - 탱크 그룹 이중 트랙 지원) -->
+        <section class="bg-white border-2 border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+            
+            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-3 text-sm font-black text-slate-900">
+                    <span class="p-1.5 bg-slate-200 rounded-lg text-slate-800"><i class="fa-solid fa-chart-gantt"></i></span>
+                    <span>L/Dome Cover 공정관리</span>
+                    <!-- 신규 호선 추가 버튼 (관리자 모드에서만 노출) -->
+                    <button id="admin-add-vessel-btn" onclick="openAddModal()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-xs font-black transition">
+                        <i class="fa-solid fa-plus mr-1"></i>신규 호선 추가
+                    </button>
+                    <!-- 자동 정렬 버튼 (관리자 모드에서만 노출) -->
+                    <button id="admin-resolve-btn" onclick="resolveConflicts()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-xl text-xs font-black transition">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>자동 정렬
+                    </button>
+                </div>
+                <!-- 범례 아이콘 마커 요약 -->
+                <div class="flex flex-wrap items-center gap-3 text-[10px] font-bold text-slate-600">
+                    <span class="flex items-center space-x-1"><span class="marker-dot bg-blue-600"></span><span>입고</span></span>
+                    <span class="flex items-center space-x-1"><span class="marker-dot bg-teal-600"></span><span>크리닝</span></span>
+                    <span class="flex items-center space-x-1"><span class="marker-dot bg-indigo-600"></span><span>작업</span></span>
+                    <span class="flex items-center space-x-1"><span class="marker-dot bg-purple-600"></span><span>검사</span></span>
+                    <span class="flex items-center space-x-1"><span class="marker-diamond bg-emerald-600"></span><span>PT (탑재)</span></span>
+                    <span class="px-2 py-0.5 rounded weekend-bg-highlight text-rose-700 border border-rose-300">일요일 및 공휴일</span>
+                    <span class="text-[9px] text-rose-500 font-extrabold flex items-center gap-0.5"><span class="w-2.5 h-2.5 bg-white border border-rose-300 rounded flex items-center justify-center text-[7px] text-rose-600">공</span><span>공휴일 겹침</span></span>
+                </div>
+            </div>
+
+            <!-- 1년 스케쥴 관제 영역 (가로 약 19,260px 초대형 프레임) -->
+            <div id="timeline-scroll-container" class="overflow-x-auto overflow-y-auto max-h-[640px]">
+                <div id="timeline-inner-container" class="px-4 pb-4 pt-0">
+                    
+                    <!-- 1. 연간 달력 월/일자 헤더 영역 -->
+                    <div id="calendar-header-365" class="gantt-365-layout text-center text-xs font-bold text-slate-500 sticky top-0 z-30 bg-slate-100">
+                        <!-- JS동적 추가 -->
+                    </div>
+
+                    <!-- 2. 각 호선별 로우 데이터 (Group A & Group B 서브 트랙 포함) -->
+                    <div id="gantt-rows-365" class="divide-y divide-slate-150 mt-1 relative">
+                        <!-- JS동적 추가 -->
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 📥 외부 데이터 연동 제어판 (JSON 데이터 양식 표준화 및 백업 - 관리자 전용) -->
+        <section id="external-data-section" class="hidden bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center justify-between border-b border-slate-150 pb-3 mb-4">
+                <div class="space-y-0.5">
+                    <h3 class="text-xs font-black text-slate-900 flex items-center space-x-1.5">
+                        <span class="text-indigo-600"><i class="fa-solid fa-file-export"></i></span>
+                        <span>통합 데이터 전송 및 백업 (관리자 전용 제어판)</span>
+                    </h3>
+                    <p class="text-[10px] text-slate-500">호선별 일정 스케줄과 공지사항 전체를 통합하여 전송 및 백업할 수 있는 JSON 규격입니다.</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="copyDataToClipboard()" class="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                        현재 데이터 클립보드 복사
+                    </button>
+                    <button onclick="loadExternalData()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                        아래 데이터 양식으로 갱신 적용
+                    </button>
+                </div>
+            </div>
+            <textarea id="data-json-area" rows="6" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 font-mono text-[10px] text-slate-700 focus:outline-none focus:bg-white transition" placeholder="여기에 표준 JSON 데이터를 붙여넣거나 복사해 백업하세요."></textarea>
+        </section>
+
+    </main>
+
+    <!-- 1. 신규 호선 추가 모달 (순산 실시간 시뮬레이션 탑재) -->
+    <div id="add-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border-2 border-slate-300 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button onclick="closeAddModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-5">
+                <h3 class="text-sm font-black text-slate-900"><i class="fa-solid fa-circle-plus text-blue-600 mr-1"></i>신규 호선 등록</h3>
+                <p class="text-xs text-slate-500 mt-1">Tank별 목표 PT일을 지정하면 각 탱크쌍의 일정이 시뮬레이션됩니다.</p>
+            </div>
+            
+            <form id="add-form" onsubmit="handleNewProjectSubmit(event)" class="space-y-4 text-xs text-slate-700">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 mb-1 font-extrabold">호선 넘버</label>
+                        <input type="text" id="add-form-hull" placeholder="예: SN 2687" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 mb-1 font-extrabold">시리즈</label>
+                        <input type="text" id="add-form-block" placeholder="예: MOL" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-blue-600 mb-1 font-extrabold">(3/4TK) PT일</label>
+                        <input type="date" id="add-form-pt-a" value="2026-06-05" required class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none focus:border-blue-500" onchange="previewAddCalculation()">
+                    </div>
+                    <div>
+                        <label class="block text-teal-600 mb-1 font-extrabold">(1/2TK) PT일</label>
+                        <input type="date" id="add-form-pt-b" value="2026-06-19" required class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none focus:border-teal-500" onchange="previewAddCalculation()">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-blue-600 mb-1 font-extrabold">3/4TK 담당업체</label>
+                        <select id="add-form-vendor-a" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                            <option value="한국">한국</option>
+                            <option value="화진">화진</option>
+                            <option value="송안">송안</option>
+                            <option value="구일">구일</option>
+                            <option value="오셔나즈">오셔나즈</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-teal-600 mb-1 font-extrabold">1/2TK 담당업체</label>
+                        <select id="add-form-vendor-b" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                            <option value="한국">한국</option>
+                            <option value="화진">화진</option>
+                            <option value="송안">송안</option>
+                            <option value="구일">구일</option>
+                            <option value="오셔나즈">오셔나즈</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ⚡ 순산 결과 실시간 미리보기 -->
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-2">
+                    <span class="block text-[10px] font-black text-slate-500 uppercase"><i class="fa-solid fa-wave-square text-indigo-500 mr-1"></i>시뮬레이션 미리보기</span>
+                    <div class="grid grid-cols-2 gap-3 text-[11px] font-bold text-slate-600">
+                        <div class="flex flex-col border-b pb-1">
+                            <span class="text-slate-400 text-[10px]">3/4 입고일 (P - 5일)</span>
+                            <span id="prev-ld-a" class="text-blue-600">-</span>
+                        </div>
+                        <div class="flex flex-col border-b pb-1">
+                            <span class="text-slate-400 text-[10px]">1/2 입고일 (P - 5일)</span>
+                            <span id="prev-ld-b" class="text-teal-600">-</span>
+                        </div>
+                        <div class="flex flex-col border-b pb-1">
+                            <span class="text-slate-400 text-[10px]">3/4 검사일 (P - 1일)</span>
+                            <span id="prev-inspect-a" class="text-blue-600">-</span>
+                        </div>
+                        <div class="flex flex-col border-b pb-1">
+                            <span class="text-slate-400 text-[10px]">1/2 검사일 (P - 1일)</span>
+                            <span id="prev-inspect-b" class="text-teal-600">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-2 pt-1">
+                    <button type="button" onclick="closeAddModal()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2.5 rounded-xl font-black transition">
+                        취소
+                    </button>
+                    <button type="submit" class="w-1/2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-black transition">
+                        일정 등록
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. 호선별 상세 일정 직접 수정 모달 -->
+    <div id="edit-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border-2 border-slate-300 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative">
+            <button onclick="closeEditModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-5">
+                <h3 class="text-sm font-black text-slate-900"><i class="fa-solid fa-file-pen text-indigo-600 mr-1.5"></i>호선별 상세 일정 수정</h3>
+                <p class="text-xs text-slate-500 mt-1">현장 상황에 매칭되게 각 일정을 조율합니다.</p>
+            </div>
+            
+            <form id="edit-form" onsubmit="handleEditProjectSubmit(event)" class="space-y-4 text-xs text-slate-700">
+                <input type="hidden" id="edit-form-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 mb-1 font-extrabold">호선 넘버</label>
+                        <input type="text" id="edit-form-hull" required class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 mb-1 font-extrabold">시리즈</label>
+                        <input type="text" id="edit-form-block" required class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-blue-600 mb-1 font-extrabold">3/4TK 담당업체</label>
+                        <select id="edit-form-vendor-a" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                            <option value="한국">한국</option>
+                            <option value="화진">화진</option>
+                            <option value="송안">송안</option>
+                            <option value="구일">구일</option>
+                            <option value="오셔나즈">오셔나즈</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-teal-600 mb-1 font-extrabold">1/2TK 담당업체</label>
+                        <select id="edit-form-vendor-b" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                            <option value="한국">한국</option>
+                            <option value="화진">화진</option>
+                            <option value="송안">송안</option>
+                            <option value="구일">구일</option>
+                            <option value="오셔나즈">오셔나즈</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 3/4TK 상세 일정 직접 제어 -->
+                <div class="bg-blue-50/40 border border-blue-200 rounded-2xl p-3.5 space-y-3">
+                    <div class="flex items-center justify-between border-b border-blue-200 pb-1.5">
+                        <span class="font-black text-blue-700 text-[11px]"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>3/4TK 상세 일정 직접 제어</span>
+                        <label class="flex items-center space-x-1 cursor-pointer">
+                            <input type="checkbox" id="edit-form-manual-a" onchange="toggleManualFields('A')" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5">
+                            <span class="text-[10px] font-black text-slate-700">수동 고정 활성화</span>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600">
+                        <div>
+                            <label class="block text-slate-400 mb-0.5">입고일</label>
+                            <input type="date" id="edit-form-ld-a" disabled class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-0.5">크리닝일</label>
+                            <input type="date" id="edit-form-clean-a" disabled class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-0.5">작업시작일</label>
+                            <input type="date" id="edit-form-work-start-a" disabled class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-0.5">작업완료일</label>
+                            <input type="date" id="edit-form-work-end-a" disabled class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-0.5">검사일</label>
+                            <input type="date" id="edit-form-inspect-a" disabled class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-blue-600 mb-0.5">PT 목표일</label>
+                            <input type="date" id="edit-form-pt-a" required class="w-full bg-white border border-slate-300 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1/2TK 상세 일정 직접 제어 -->
+                <div class="bg-teal-50/40 border border-teal-200 rounded-2xl p-3.5 space-y-3">
+                    <div class="flex items-center justify-between border-b border-teal-200 pb-1.5">
+                        <span class="font-black text-teal-700 text-[11px]"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>1/2TK 상세 일정 직접 제어</span>
+                        <label class="flex items-center space-x-1 cursor-pointer">
+                            <input type="checkbox" id="edit-form-manual-b" onchange="toggleManualFields('B')" class="rounded border-slate-300 text-teal-600 focus:ring-teal-500 w-3.5 h-3.5">
+                            <span class="text-[10px] font-black text-slate-700">수동 고정 활성화</span>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600">
+                        <div>
+                            <label class="block text-slate-400 mb-0.5">입고일</label>
+                            <input type="date" id="edit-form-ld-b" disabled class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-0.5">크리닝일</label>
+                            <input type="date" id="edit-form-clean-b" disabled class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-0.5">작업시작일</label>
+                            <input type="date" id="edit-form-work-start-b" disabled class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-0.5">작업완료일</label>
+                            <input type="date" id="edit-form-work-end-b" disabled class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-0.5">검사일</label>
+                            <input type="date" id="edit-form-inspect-b" disabled class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100">
+                        </div>
+                        <div>
+                            <label class="block text-teal-600 mb-0.5">PT 목표일</label>
+                            <input type="date" id="edit-form-pt-b" required class="w-full bg-white border border-slate-300 rounded px-2 py-1 text-slate-900 font-bold focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-2 pt-1">
+                    <button type="button" onclick="closeEditModal()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2.5 rounded-xl font-black transition">
+                        취소
+                    </button>
+                    <button type="submit" class="w-1/2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-black transition">
+                        변경사항 저장
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. 공지사항 등록 모달 (관리자 전용) -->
+    <div id="announce-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border-2 border-slate-300 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button onclick="closeAnnounceModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-5">
+                <h3 class="text-sm font-black text-slate-900"><i class="fa-solid fa-bullhorn text-indigo-600 mr-1 animate-bounce"></i>신규 공지사항 등록</h3>
+                <p class="text-xs text-slate-500 mt-1">공지사항을 작성하면 작업장 공지 보드 상단에 즉시 게시됩니다.</p>
+            </div>
+            
+            <form id="announce-form" onsubmit="handleNewAnnounceSubmit(event)" class="space-y-4 text-xs text-slate-700">
+                <div>
+                    <label class="block text-slate-700 mb-1 font-extrabold">공지 내용</label>
+                    <textarea id="announce-content" rows="4" placeholder="예: 2026년 6월 6일 현충일 휴무 안내" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 font-bold focus:outline-none focus:bg-white transition"></textarea>
+                </div>
+                <div class="flex space-x-2 pt-1">
+                    <button type="button" onclick="closeAnnounceModal()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2.5 rounded-xl font-black transition">
+                        취소
+                    </button>
+                    <button type="submit" class="w-1/2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-black transition">
+                        공지 등록
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. 공정 기준 안내 모달 (작은 버튼 연동 팝업) -->
+    <div id="rules-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border-2 border-slate-300 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeRulesModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-5">
+                <h3 class="text-sm font-black text-slate-900"><i class="fa-solid fa-circle-info text-indigo-600 mr-1"></i>돔커버 공정 기준 안내</h3>
+                <p class="text-xs text-slate-500 mt-1">돔커버 작업장 스케쥴에 따른 공정 규칙입니다.</p>
+            </div>
+            
+            <div class="space-y-3 text-xs text-slate-700">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <span class="block font-black text-slate-900 border-b pb-1"><i class="fa-solid fa-clock text-indigo-600 mr-1"></i>공정별 소요일</span>
+                    <div class="grid grid-cols-2 gap-2 font-bold">
+                        <div>1. 입고 :</div><div class="text-indigo-600 text-right">1 일</div>
+                        <div>2. 크리닝 :</div><div class="text-indigo-600 text-right">1 일</div>
+                        <div>3. 보온작업 :</div><div class="text-indigo-600 text-right">2 일</div>
+                        <div>4. 검사 :</div><div class="text-indigo-600 text-right">1 일</div>
+                        <div>5. PT (탑재):</div><div class="text-indigo-600 text-right">확정일</div>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5 font-bold">
+                    <span class="block font-black text-slate-900 border-b pb-1"><i class="fa-solid fa-calendar-xmark text-rose-600 mr-1"></i>날짜 제한 규칙</span>
+                    <p class="text-slate-600 text-[11px] leading-relaxed">
+                        • <strong class="text-rose-600">일요일 및 공휴일</strong>: 모든 공정 진행 불가 (계산에서 제외)<br>
+                        • <strong class="text-slate-800">토요일</strong>: 입고, 크리닝, 작업은 가능하나 <strong class="text-rose-600">검사 불가</strong> (평일만 허용)<br>
+                        • <strong class="text-indigo-600">검사일 토요일 조정</strong>: 역산 중 검사일이 토요일이면 직전 금요일로 당겨집니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="pt-4">
+                <button onclick="closeRulesModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2 rounded-xl font-black transition text-xs">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 오피스 알림 -->
+    <div id="toast-notif" class="hidden fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-xl z-50 flex items-center space-x-3 transition-all">
+        <div class="bg-white/10 text-emerald-400 p-2 rounded-lg">
+            <i class="fa-solid fa-circle-check text-base"></i>
+        </div>
+        <span id="toast-msg" class="text-xs font-black">정상 처리되었습니다.</span>
+    </div>
+
+    <!-- 💻 연간 관제 순산 일정 엔진 스크립트 -->
+    <script>
+        // 시스템의 현재 연도를 감지하여 캘린더 구동 범위 자동 계산
+        const CURRENT_YEAR = new Date().getFullYear();
+        const START_DATE = new Date(`${CURRENT_YEAR}-01-01`);
+        const END_DATE = new Date(`${CURRENT_YEAR}-12-31`);
+        // 윤년을 고려한 365/366일 계산
+        const DAY_COUNT = Math.round((END_DATE - START_DATE) / (1000 * 60 * 60 * 24)) + 1;
+
+        // 오늘 고정 기준일 (시스템 날짜의 월/일을 인식하되, 현재 연도 캘린더 범위에 맞춰 연도 자동 보정)
+        const sysToday = new Date();
+        const TODAY_DATE = new Date(CURRENT_YEAR, sysToday.getMonth(), sysToday.getDate());
+        const TODAY_STR = formatDate(TODAY_DATE);
+
+        // 관리자 모드 활성화 상태 여부 (최초 시작은 항상 false)
+        let isAdminMode = false;
+
+        // 매년 동일하게 반복되는 공휴일(월-일) 목록 기반으로 현재 연도 공휴일 리스트 동적 빌드
+        const HOLIDAYS_BASE = [
+            '%-01-01', // 신정
+            '%-02-17', '%-02-18', '%-02-19', // 설날 연휴 (2026년도 날짜 기준 변환 - 음력의 경우 수동 보정 가능)
+            '%-03-01', // 삼일절
+            '%-05-05', // 어린이날
+            '%-05-24', // 부처님오신날 (음력)
+            '%-05-25', // 대체공휴일
+            '%-06-06', // 현충일
+            '%-08-15', // 광복절
+            '%-09-24', '%-09-25', '%-09-26', // 추석 연휴 (음력)
+            '%-10-03', // 개천절
+            '%-10-09', // 한글날
+            '%-12-25'  // 성탄절
+        ];
+        const HOLIDAYS_2026 = HOLIDAYS_BASE.map(h => h.replace('%', CURRENT_YEAR));
+
+        // 기본 10개 호선 데이터
+        const DEFAULT_10_PROJECTS = [
+            { id: 1, vessel_id: "CMES (2687)", panel: "MOL", pt_date_A: "2026-06-05", pt_date_B: "2026-06-19", vendor_A: "한국", vendor_B: "화진" },
+            { id: 2, vessel_id: "CMES (2696) 3,4", panel: "MOL", pt_date_A: "2026-06-25", pt_date_B: "2026-07-09", vendor_A: "송안", vendor_B: "구일" },
+            { id: 3, vessel_id: "ENI (2686) 1/2(P)", panel: "DSME", pt_date_A: "2026-05-15", pt_date_B: "2026-05-29", vendor_A: "오셔나즈", vendor_B: "한국" },
+            { id: 4, vessel_id: "ENI (2686) 1/2(S)", panel: "DSME", pt_date_A: "2026-06-12", pt_date_B: "2026-06-26", vendor_A: "화진", vendor_B: "송안" },
+            { id: 5, vessel_id: "ENI (2686) 3/4(P)", panel: "SHI", pt_date_A: "2026-08-21", pt_date_B: "2026-09-04", vendor_A: "구일", vendor_B: "오셔나즈" },
+            { id: 6, vessel_id: "HULL (3101) Bulkhead", panel: "MOL", pt_date_A: "2026-05-22", pt_date_B: "2026-06-05", vendor_A: "한국", vendor_B: "송안" },
+            { id: 7, vessel_id: "HULL (3102) Bow Side", panel: "HHI", pt_date_A: "2026-04-17", pt_date_B: "2026-05-01", vendor_A: "화진", vendor_B: "구일" },
+            { id: 8, vessel_id: "HULL (3103) Stern", panel: "HHI", pt_date_A: "2026-07-10", pt_date_B: "2026-07-24", vendor_A: "오셔나즈", vendor_B: "한국" },
+            { id: 9, vessel_id: "HULL (3104) Upper Deck", panel: "SHI", pt_date_A: "2026-08-07", pt_date_B: "2026-08-14", vendor_A: "송안", vendor_B: "화진" },
+            { id: 10, vessel_id: "HULL (3105) Double Bottom", panel: "MOL", pt_date_A: "2026-09-18", pt_date_B: "2026-10-02", vendor_A: "구일", vendor_B: "오셔나즈" }
+        ];
+
+        // 기본 공지사항 리스트
+        let announcements = [
+            { id: 1, date: "2026-05-28", content: "📢 성공적으로 가포되었습니다." },
+            { id: 2, date: "2026-05-28", content: "⚠️ 5월 24일~25일 부처님오신날 및 대체공휴일 지정으로 작업장 가동이 제외되었습니다. 일정 조정 시 참고하시기 바랍니다." }
+        ];
+
+        let projects = [];
+        let detectedConflicts = []; // 탐색된 수동 검토 대상 목록
+
+        // 365개 날짜 Date 객체 세트 캐싱
+        const datesCache = [];
+        let tempDate = new Date(START_DATE);
+        for (let i = 0; i < DAY_COUNT; i++) {
+            datesCache.push(new Date(tempDate));
+            tempDate.setDate(tempDate.getDate() + 1);
+        }
+
+        // 공휴일 및 주말, 공정별 유효성 판정
+        function isValidDayForProcess(date, processName) {
+            const curDateStr = formatDate(date);
+            const isHoliday = HOLIDAYS_2026.includes(curDateStr);
+            const dayOfWeek = date.getDay();
+            const isSun = (dayOfWeek === 0);
+            const isSat = (dayOfWeek === 6);
+
+            if (isSun || isHoliday) {
+                return false;
+            }
+
+            if (processName === "검사" || processName === "PT") {
+                if (isSat) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // 유효 영업일 기준 이전/이후 날짜 연산 헬퍼
+        function getValidDayBefore(dateStr, processName) {
+            let d = new Date(dateStr);
+            while (true) {
+                d.setDate(d.getDate() - 1);
+                if (isValidDayForProcess(d, processName)) {
+                    return formatDate(d);
+                }
+            }
+        }
+
+        function getValidDayAfter(dateStr, processName) {
+            let d = new Date(dateStr);
+            while (true) {
+                d.setDate(d.getDate() + 1);
+                if (isValidDayForProcess(d, processName)) {
+                    return formatDate(d);
+                }
+            }
+        }
+
+        function getValidDayOrNext(dateStr, processName) {
+            let d = new Date(dateStr);
+            while (!isValidDayForProcess(d, processName)) {
+                d.setDate(d.getDate() + 1);
+            }
+            return formatDate(d);
+        }
+
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        // 프로젝트 데이터 무결성 검증 및 기본값 보정 헬퍼
+        function ensureProjectDataIntegrity(projs) {
+            projs.forEach(p => {
+                if (!p.vendor_A) p.vendor_A = '한국';
+                if (!p.vendor_B) p.vendor_B = '한국';
+                if (p.is_manual_A === undefined) p.is_manual_A = false;
+                if (p.is_manual_B === undefined) p.is_manual_B = false;
+                
+                if (!p.dates_A) {
+                    const schedA = calculateReverseSchedule(p.pt_date_A);
+                    p.dates_A = {
+                        ld: schedA.ld.start,
+                        clean: schedA.clean.start,
+                        work_start: schedA.work.start,
+                        work_end: schedA.work.end,
+                        inspect: schedA.inspect.start,
+                        pt: schedA.pt.start
+                    };
+                }
+                if (!p.dates_B) {
+                    const schedB = calculateReverseSchedule(p.pt_date_B);
+                    p.dates_B = {
+                        ld: schedB.ld.start,
+                        clean: schedB.clean.start,
+                        work_start: schedB.work.start,
+                        work_end: schedB.work.end,
+                        inspect: schedB.inspect.start,
+                        pt: schedB.pt.start
+                    };
+                }
+            });
+        }
+
+        function hasHoliday(startStr, endStr) {
+            let start = new Date(startStr);
+            let end = new Date(endStr);
+            let cur = new Date(start);
+            while (cur <= end) {
+                if (HOLIDAYS_2026.includes(formatDate(cur))) {
+                    return true;
+                }
+                cur.setDate(cur.getDate() + 1);
+            }
+            return false;
+        }
+
+        // PT일 기준 역산 계산식
+        function calculateReverseSchedule(ptTargetDateStr) {
+            const pt = getValidDayOrNext(ptTargetDateStr, "PT");
+            const inspect = getValidDayBefore(pt, "검사");
+            const work_end = getValidDayBefore(inspect, "작업");
+            const work_start = getValidDayBefore(work_end, "작업");
+            const clean = getValidDayBefore(work_start, "크리닝");
+            const ld = getValidDayBefore(clean, "입고");
+            
+            return {
+                ld: { start: ld, end: ld, name: "입고", holiday_flag: HOLIDAYS_2026.includes(ld) },
+                clean: { start: clean, end: clean, name: "크리닝", holiday_flag: HOLIDAYS_2026.includes(clean) },
+                work: { start: work_start, end: work_end, name: "작업", holiday_flag: hasHoliday(work_start, work_end) },
+                inspect: { start: inspect, end: inspect, name: "검사", holiday_flag: HOLIDAYS_2026.includes(inspect) },
+                pt: { start: pt, end: pt, name: "PT", holiday_flag: HOLIDAYS_2026.includes(pt) }
+            };
+        }
+
+        function getValidDayOrPrev(dateStr, processName) {
+            let d = new Date(dateStr);
+            while (!isValidDayForProcess(d, processName)) {
+                d.setDate(d.getDate() - 1);
+            }
+            return formatDate(d);
+        }
+
+        // 검사완료일 지정 기준 역산 계산식 (선 공정 당기기 전용)
+        function calculateReverseScheduleWithInspectEnd(inspectEndStr, ptTargetDateStr) {
+            const pt = getValidDayOrNext(ptTargetDateStr, "PT");
+            const inspect = getValidDayOrPrev(inspectEndStr, "검사");
+            const work_end = getValidDayBefore(inspect, "작업");
+            const work_start = getValidDayBefore(work_end, "작업");
+            const clean = getValidDayBefore(work_start, "크리닝");
+            const ld = getValidDayBefore(clean, "입고");
+            
+            return {
+                ld: { start: ld, end: ld, name: "입고", holiday_flag: HOLIDAYS_2026.includes(ld) },
+                clean: { start: clean, end: clean, name: "크리닝", holiday_flag: HOLIDAYS_2026.includes(clean) },
+                work: { start: work_start, end: work_end, name: "작업", holiday_flag: hasHoliday(work_start, work_end) },
+                inspect: { start: inspect, end: inspect, name: "검사", holiday_flag: HOLIDAYS_2026.includes(inspect) },
+                pt: { start: pt, end: pt, name: "PT", holiday_flag: HOLIDAYS_2026.includes(pt) }
+            };
+        }
+
+        // 입고일 기준 순방향 계산식 (PT일 고정 버전)
+        function calculateForwardSchedule(ldStartStr, ptTargetDateStr) {
+            const ld = getValidDayOrNext(ldStartStr, "입고");
+            const clean = getValidDayAfter(ld, "크리닝");
+            const work_start = getValidDayAfter(clean, "작업");
+            const work_end = getValidDayAfter(work_start, "작업");
+            const inspect = getValidDayAfter(work_end, "검사");
+            
+            // PT일은 임의로 밀리지 않고, 사용자가 지정한 목표 PT일을 그대로 고정 유지합니다.
+            const pt = getValidDayOrNext(ptTargetDateStr, "PT");
+            
+            return {
+                ld: { start: ld, end: ld, name: "입고", holiday_flag: HOLIDAYS_2026.includes(ld) },
+                clean: { start: clean, end: clean, name: "크리닝", holiday_flag: HOLIDAYS_2026.includes(clean) },
+                work: { start: work_start, end: work_end, name: "작업", holiday_flag: hasHoliday(work_start, work_end) },
+                inspect: { start: inspect, end: inspect, name: "검사", holiday_flag: HOLIDAYS_2026.includes(inspect) },
+                pt: { start: pt, end: pt, name: "PT", holiday_flag: HOLIDAYS_2026.includes(pt) }
+            };
+        }
+
+        function isOverlap(s1, s2) {
+            const start1 = new Date(s1.ld.start);
+            const end1 = new Date(s1.inspect.end);
+            const start2 = new Date(s2.ld.start);
+            const end2 = new Date(s2.inspect.end);
+            return start1 <= end2 && start2 <= end1;
+        }
+
+        // 초기 어플리케이션 가동
+        function init() {
+            // 윤년 여부에 따라 그리드 템플릿과 가로 폭을 동적으로 주입
+            const dynamicStyle = document.createElement('style');
+            dynamicStyle.innerHTML = `
+                .gantt-365-layout {
+                    display: grid;
+                    grid-template-columns: 280px repeat(${DAY_COUNT}, 52px);
+                }
+            `;
+            document.head.appendChild(dynamicStyle);
+
+            const containerWidth = (DAY_COUNT * 52) + 280 + 32;
+            document.getElementById('timeline-inner-container').style.width = `${containerWidth}px`;
+
+            document.getElementById('live-today-text').innerText = `오늘: ${TODAY_STR}`;
+            isAdminMode = false; // 시작 화면 관리자 모드 OFF 고정
+
+            const savedProjects = localStorage.getItem('dome_dock_tank_projects_v90');
+            if (savedProjects) {
+                projects = JSON.parse(savedProjects);
+            } else {
+                projects = JSON.parse(JSON.stringify(DEFAULT_10_PROJECTS));
+            }
+
+            // 연도가 바뀌었을 때 현재 구동 연도로 기존 데이터 자동 연도 마이그레이션 보정
+            projects.forEach(p => {
+                const yearA = new Date(p.pt_date_A).getFullYear();
+                const yearB = new Date(p.pt_date_B).getFullYear();
+                if (yearA !== CURRENT_YEAR) {
+                    p.pt_date_A = p.pt_date_A.replace(/^\d{4}/, CURRENT_YEAR);
+                }
+                if (yearB !== CURRENT_YEAR) {
+                    p.pt_date_B = p.pt_date_B.replace(/^\d{4}/, CURRENT_YEAR);
+                }
+            });
+
+            // 데이터 구조 무결성 검증 및 수동 날짜 초기화 일괄 수행
+            ensureProjectDataIntegrity(projects);
+
+            // 공지사항 로드
+            const savedAnnouncements = localStorage.getItem('dome_dock_announcements');
+            if (savedAnnouncements) {
+                announcements = JSON.parse(savedAnnouncements);
+            } else {
+                localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
+            }
+
+            renderAnnouncements();
+            analyzeAndRender(); // 먼저 계산 및 dates 세팅
+            updateAdminModeUI(true); // 그 다음 UI 업데이트 및 트랙 렌더링 (토스트 없음)
+            setTimeout(scrollToToday, 200);
+        }
+
+        // 🔒 관리자 모드 토글
+        function toggleAdminMode() {
+            isAdminMode = !isAdminMode;
+            updateAdminModeUI(false);
+        }
+
+        function updateAdminModeUI(isInitial = false) {
+            const toggleBtn = document.getElementById('admin-mode-toggle');
+            const icon = document.getElementById('admin-mode-icon');
+            const text = document.getElementById('admin-mode-text');
+            
+            const addVesselBtn = document.getElementById('admin-add-vessel-btn');
+            const resolveBtn = document.getElementById('admin-resolve-btn');
+            const addAnnounceBtn = document.getElementById('admin-add-announce-btn');
+            const externalDataSection = document.getElementById('external-data-section');
+
+            if (isAdminMode) {
+                toggleBtn.classList.replace('bg-slate-100', 'bg-indigo-600');
+                toggleBtn.classList.replace('text-slate-700', 'text-white');
+                toggleBtn.classList.replace('border-slate-300', 'border-indigo-500');
+                icon.className = 'fa-solid fa-lock-open mr-1';
+                text.textContent = '관리자 모드 ON';
+
+                if (addVesselBtn) addVesselBtn.classList.remove('hidden');
+                if (resolveBtn) resolveBtn.classList.remove('hidden');
+                if (addAnnounceBtn) addAnnounceBtn.classList.remove('hidden');
+                if (externalDataSection) externalDataSection.classList.remove('hidden');
+                if (!isInitial) showToast("🔒 관리자 모드가 활성화되었습니다. 모든 편집 및 외부 연동 권한이 부여됩니다.");
+            } else {
+                toggleBtn.classList.replace('bg-indigo-600', 'bg-slate-100');
+                toggleBtn.classList.replace('text-white', 'text-slate-700');
+                toggleBtn.classList.replace('border-indigo-500', 'border-slate-300');
+                icon.className = 'fa-solid fa-lock mr-1';
+                text.textContent = '관리자 모드 OFF';
+
+                if (addVesselBtn) addVesselBtn.classList.add('hidden');
+                if (resolveBtn) resolveBtn.classList.add('hidden');
+                if (addAnnounceBtn) addAnnounceBtn.classList.add('hidden');
+                if (externalDataSection) externalDataSection.classList.add('hidden');
+                if (!isInitial) showToast("🔓 일반 사용자 모드입니다. 일정 조작 및 백업 데이터 조회는 차단됩니다.");
+            }
+            renderAnnouncements(); // 관리자 모드 상태에 따른 공지 개별 삭제 버튼 토글 반영
+            renderTimelineTracks();
+        }
+
+        // 공지 보드 렌더링 (2배 크기, 최신순 정렬, 하이라이트 및 최신공지 고정 적용)
+        function renderAnnouncements() {
+            const container = document.getElementById('announcement-board-list');
+            if (announcements.length === 0) {
+                container.innerHTML = `
+                    <div class="text-slate-400 font-black py-4 text-center text-sm">등록된 공지사항이 없습니다. 관리자 모드에서 신규 공지를 등록해 보세요.</div>
+                `;
+                return;
+            }
+            
+            // 최신 공지가 항상 맨 위에 오도록 정렬 (id 역순)
+            const sortedAnnouncements = [...announcements].sort((a, b) => b.id - a.id);
+            
+            container.innerHTML = sortedAnnouncements.map((a, index) => {
+                const isLatest = (index === 0);
+                // 최신 공지는 더 화려한 하이라이트 처리 + 스크롤 시 상단 고정(sticky)
+                const bgClass = isLatest 
+                    ? 'bg-amber-100 border-2 border-amber-300 shadow-md sticky top-0 z-10' 
+                    : 'bg-amber-50 border border-amber-200 hover:bg-amber-100/50 transition shadow-sm';
+                const textClass = isLatest ? 'text-amber-950 font-black' : 'text-amber-900 font-extrabold';
+                const badgeClass = isLatest
+                    ? 'bg-amber-200 text-amber-950 border border-amber-400'
+                    : 'bg-amber-100 text-amber-800 border border-amber-300';
+                
+                // 관리자 모드인 경우에만 휴지통 아이콘 삭제 버튼 추가
+                const deleteBtnHtml = isAdminMode 
+                    ? `<button onclick="deleteAnnouncement(${a.id})" class="text-rose-500 hover:text-rose-700 hover:bg-rose-100/60 p-2 rounded-xl transition shrink-0 ml-2 shadow-sm border border-rose-200 bg-rose-50/50" title="공지 삭제">
+                           <i class="fa-solid fa-trash-can text-sm"></i>
+                       </button>`
+                    : '';
+
+                return `
+                    <div class="flex items-center space-x-4 ${bgClass} py-3.5 px-5 rounded-2xl w-full">
+                        <span class="${badgeClass} text-xs md:text-sm font-black px-3.5 py-1 rounded-xl shrink-0 tracking-wider shadow-sm">${a.date}</span>
+                        <span class="${textClass} leading-relaxed text-sm md:text-base flex-1 tracking-wide" style="line-height: 1.5; letter-spacing: 0.04em;">${a.content}</span>
+                        ${isLatest ? '<span class="text-amber-600 font-black text-xs md:text-sm animate-pulse shrink-0 mr-1"><i class="fa-solid fa-thumbtack mr-0.5"></i>최신공지</span>' : ''}
+                        ${deleteBtnHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openAnnounceModal() {
+            document.getElementById('announce-modal').classList.remove('hidden');
+        }
+
+        function closeAnnounceModal() {
+            document.getElementById('announce-modal').classList.add('hidden');
+            document.getElementById('announce-form').reset();
+        }
+
+        function handleNewAnnounceSubmit(e) {
+            e.preventDefault();
+            const content = document.getElementById('announce-content').value;
+            if (!content) return;
+
+            const newAnnounce = {
+                id: Date.now(),
+                date: formatDate(new Date()),
+                content: content
+            };
+
+            announcements.unshift(newAnnounce);
+            localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
+            renderAnnouncements();
+            closeAnnounceModal();
+            saveState(); // 백업 JSON 갱신
+            showToast("📢 신규 공지사항이 등록되었습니다.");
+        }
+
+        // 공지 삭제 함수 (관리자 전용)
+        function deleteAnnouncement(id) {
+            announcements = announcements.filter(a => a.id !== id);
+            localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
+            renderAnnouncements();
+            saveState(); // 백업 JSON 갱신
+            showToast("🗑️ 선택한 공지사항이 성공적으로 삭제되었습니다.");
+        }
+
+        function openRulesModal() {
+            document.getElementById('rules-modal').classList.remove('hidden');
+        }
+
+        function closeRulesModal() {
+            document.getElementById('rules-modal').classList.add('hidden');
+        }
+
+        function saveState() {
+            localStorage.setItem('dome_dock_tank_projects_v90', JSON.stringify(projects));
+            localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
+            const backupData = {
+                projects: projects,
+                announcements: announcements
+            };
+            document.getElementById('data-json-area').value = JSON.stringify(backupData, null, 2);
+        }
+
+        function analyzeAndRender() {
+            detectOccupancyConflicts();
+            renderCalendarHeader();
+            renderTimelineTracks();
+            saveState();
+        }
+
+        // 다중 탱크쌍 작업장 배분 및 경고 판정 (선 공정 역방향 당기기 알고리즘 개편)
+        function allocateAllSchedules() {
+            let pairs = [];
+            projects.forEach(p => {
+                pairs.push({
+                    proj_id: p.id,
+                    vessel_id: p.vessel_id,
+                    panel: p.panel,
+                    group: "A",
+                    tanks: ["3TK", "4TK"],
+                    pt_target: p.pt_date_A,
+                    is_manual: p.is_manual_A || false,
+                    manual_dates: p.dates_A,
+                    schedule: null,
+                    warning: false
+                });
+                pairs.push({
+                    proj_id: p.id,
+                    vessel_id: p.vessel_id,
+                    panel: p.panel,
+                    group: "B",
+                    tanks: ["1TK", "2TK"],
+                    pt_target: p.pt_date_B,
+                    is_manual: p.is_manual_B || false,
+                    manual_dates: p.dates_B,
+                    schedule: null,
+                    warning: false
+                });
+            });
+
+            // PT일 기준 내림차순(가장 늦은 날짜 우선) 정렬하여 뒤에서부터 배치
+            pairs.sort((a, b) => new Date(b.pt_target) - new Date(a.pt_target));
+
+            let occupiedIntervals = [];
+
+            pairs.forEach(pair => {
+                if (pair.is_manual && pair.manual_dates) {
+                    // 1. 수동으로 고정된 스케줄의 경우: 기존 일정을 100% 보존
+                    const md = pair.manual_dates;
+                    pair.schedule = {
+                        ld: { start: md.ld, end: md.ld, name: "입고", holiday_flag: HOLIDAYS_2026.includes(md.ld) },
+                        clean: { start: md.clean, end: md.clean, name: "크리닝", holiday_flag: HOLIDAYS_2026.includes(md.clean) },
+                        work: { start: md.work_start, end: md.work_end, name: "작업", holiday_flag: hasHoliday(md.work_start, md.work_end) },
+                        inspect: { start: md.inspect, end: md.inspect, name: "검사", holiday_flag: HOLIDAYS_2026.includes(md.inspect) },
+                        pt: { start: md.pt, end: md.pt, name: "PT", holiday_flag: HOLIDAYS_2026.includes(md.pt) }
+                    };
+                } else {
+                    // 2. 자동 계산 스케줄의 경우: 목표 PT일 기준 역산 일정 최초 생성
+                    pair.schedule = calculateReverseSchedule(pair.pt_target);
+                }
+
+                let resolved = false;
+                let safety = 0;
+
+                while (!resolved && safety < 100) {
+                    let conflict = null;
+                    for (let existing of occupiedIntervals) {
+                        if (isOverlap(pair.schedule, existing.schedule)) {
+                            // 겹치는 기존 배치(시간상 뒤) 블럭 중 입고일이 가장 빠른 블럭을 충돌 기준으로 삼음
+                            if (!conflict || new Date(existing.schedule.ld.start) < new Date(conflict.schedule.ld.start)) {
+                                conflict = existing;
+                            }
+                        }
+                    }
+
+                    if (conflict) {
+                        if (pair.is_manual) {
+                            // 수동 고정된 스케줄은 강제로 역산하여 당기지 않고 충돌을 그대로 둠
+                            resolved = true;
+                        } else {
+                            // 자동 스케줄인 경우에만 충돌하는 블럭의 입고일 직전 영업일로 검사를 당김
+                            let newInspectEnd = getValidDayBefore(conflict.schedule.ld.start, "검사");
+                            pair.schedule = calculateReverseScheduleWithInspectEnd(newInspectEnd, pair.pt_target);
+                            safety++;
+                        }
+                    } else {
+                        resolved = true;
+                    }
+                }
+
+                // 입고일이 관제 시작년도 이전으로 넘어가거나 스케줄 모순 시 수동검토 경고 활성화
+                if (new Date(pair.schedule.ld.start) < START_DATE || safety >= 100) {
+                    pair.warning = true;
+                } else {
+                    pair.warning = false;
+                }
+
+                occupiedIntervals.push(pair);
+            });
+
+            // 원래 호선 데이터에 계산된 양측 일정을 매핑 및 동기화 저장
+            projects.forEach(p => {
+                const pairA = occupiedIntervals.find(item => item.proj_id === p.id && item.group === "A");
+                const pairB = occupiedIntervals.find(item => item.proj_id === p.id && item.group === "B");
+                
+                p.dates = {
+                    groupA: pairA.schedule,
+                    groupB: pairB.schedule,
+                    warningA: pairA.warning,
+                    warningB: pairB.warning
+                };
+
+                // 영구 데이터 객체에 현재 결정된 최종 날짜 동기화 저장
+                p.dates_A = {
+                    ld: pairA.schedule.ld.start,
+                    clean: pairA.schedule.clean.start,
+                    work_start: pairA.schedule.work.start,
+                    work_end: pairA.schedule.work.end,
+                    inspect: pairA.schedule.inspect.start,
+                    pt: pairA.schedule.pt.start
+                };
+                p.dates_B = {
+                    ld: pairB.schedule.ld.start,
+                    clean: pairB.schedule.clean.start,
+                    work_start: pairB.schedule.work.start,
+                    work_end: pairB.schedule.work.end,
+                    inspect: pairB.schedule.inspect.start,
+                    pt: pairB.schedule.pt.start
+                };
+            });
+
+            detectedConflicts = [];
+            occupiedIntervals.forEach(pair => {
+                if (pair.warning) {
+                    detectedConflicts.push({
+                        vessel_id: pair.vessel_id,
+                        group: pair.group,
+                        tanks: pair.tanks.join("/"),
+                        pt_target: pair.pt_target,
+                        inspect_end: pair.schedule.inspect.end
+                    });
+                }
+            });
+        }
+
+        function detectOccupancyConflicts() {
+            allocateAllSchedules();
+        }
+
+        // ⚡ 작업장 일정 배분 및 자동 정렬 실행
+        function resolveConflicts() {
+            analyzeAndRender();
+            showToast("⚡ 작업장 점유 회피 알고리즘이 가동되어 모든 탱크 일정이 재정렬되었습니다.");
+        }
+
+        // 1. 365일 연간 캘린더 월/일자 헤더 렌더링
+        function renderCalendarHeader() {
+            const header = document.getElementById('calendar-header-365');
+            
+            header.innerHTML = `
+                <div class="sticky-header-top-left flex flex-col justify-center px-4 py-2 text-slate-800 bg-slate-200 font-black text-left">
+                    <span class="text-xs">호선 및 담당</span>
+                    <span class="text-[10px] text-slate-500">${CURRENT_YEAR}년</span>
+                </div>
+            `;
+
+            datesCache.forEach((d, idx) => {
+                const curDateStr = formatDate(d);
+                const isHoliday = HOLIDAYS_2026.includes(curDateStr);
+                const isWeekend = (d.getDay() === 0 || d.getDay() === 6);
+
+                let bgClass = '';
+                let textClass = 'text-slate-500 font-bold';
+
+                if (isHoliday || isWeekend) {
+                    bgClass = 'weekend-bg-highlight';
+                    if (isHoliday) {
+                        textClass = 'holiday-text-highlight';
+                    } else if (d.getDay() === 0) {
+                        textClass = 'text-rose-600 font-black'; // 일요일 빨간색
+                    } else {
+                        textClass = 'text-slate-500 font-medium'; // 토요일 회색
+                    }
+                }
+
+                const isToday = (curDateStr === TODAY_STR) ? 'bg-violet-50 border-l-2 border-violet-600 border-r border-slate-200 text-violet-700 font-black shadow-inner' : '';
+
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                const weekChars = ['일', '월', '화', '수', '목', '금', '토'];
+                
+                const monthLabel = (d.getDate() === 1) ? `${mm}월` : `${mm}/${weekChars[d.getDay()]}`;
+
+                header.innerHTML += `
+                    <div class="sticky-header-top flex flex-col items-center justify-center border-r border-slate-200 py-2 ${bgClass} ${isToday}">
+                        <span class="text-[9px] text-slate-400 font-extrabold tracking-tighter">${monthLabel}</span>
+                        <span class="text-xs font-mono mt-0.5 ${textClass}">${dd}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // 2. 365일 간트 차트 및 마일스톤 기호 렌더링
+        function renderTimelineTracks() {
+            const container = document.getElementById('gantt-rows-365');
+            container.innerHTML = '';
+
+            const startTimeline = START_DATE.getTime();
+            const colWidth = 52; // 1일 셀당 폭
+
+            const sortedProjects = [...projects].sort((a, b) => new Date(a.pt_date_A) - new Date(b.pt_date_A));
+
+            sortedProjects.forEach((proj) => {
+                let cellsHtml = '';
+
+                // 경고 뱃지 처리
+                const isConflicted = proj.dates && (proj.dates.warningA || proj.dates.warningB);
+                let conflictBadge = '';
+                if (isConflicted) {
+                    conflictBadge = `
+                        <div class="bg-red-100 text-red-600 text-[9px] font-black px-1.5 py-0.5 rounded-lg border border-red-300 animate-pulse shrink-0">
+                            ⚠ 수동검토
+                        </div>
+                    `;
+                }
+
+                // 관리자 모드 활성화 시에만 수정/삭제 버튼 노출
+                const editButtonsHtml = isAdminMode ? `
+                    <div class="flex items-center space-x-1.5 shrink-0">
+                        <button onclick="openEditModal(${proj.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-2 py-0.5 rounded text-[9px] font-black transition">
+                            수정
+                        </button>
+                        <button onclick="deleteProject(${proj.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-1.5 py-0.5 rounded text-[9px] font-black transition">
+                            삭제
+                        </button>
+                    </div>
+                ` : '';
+
+                // 격자 셀 배경 깔아주기
+                datesCache.forEach(d => {
+                    const curDateStr = formatDate(d);
+                    const isHoliday = HOLIDAYS_2026.includes(curDateStr);
+                    const isWeekend = (d.getDay() === 0 || d.getDay() === 6);
+
+                    let bgClass = '';
+                    if (isHoliday || isWeekend) bgClass = 'weekend-bg-highlight opacity-40';
+
+                    const isToday = (curDateStr === TODAY_STR) ? 'bg-violet-500/5 border-l-2 border-violet-600 border-r border-slate-100' : 'border-r border-slate-100';
+
+                    cellsHtml += `<div class="h-36 ${bgClass} ${isToday} border-b border-slate-100"></div>`;
+                });
+
+                const getLeftPos = (dateStr) => {
+                    const diffTime = new Date(dateStr).getTime() - startTimeline;
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    return (diffDays * colWidth) + 26;
+                };
+
+                const renderGroupTrack = (group, topPx, colorScheme) => {
+                    const ldLeft = getLeftPos(group.ld.start);
+                    const cleanLeft = getLeftPos(group.clean.start);
+                    const workStartLeft = getLeftPos(group.work.start);
+                    const workEndLeft = getLeftPos(group.work.end);
+                    const inspectLeft = getLeftPos(group.inspect.start);
+                    const ptLeft = getLeftPos(group.pt.start);
+
+                    const barStart = ldLeft;
+                    const barWidth = ptLeft - ldLeft;
+
+                    return `
+                        <!-- 공정 연결 바 선 -->
+                        <div class="timeline-bar-line" style="top: ${topPx}px; left: ${barStart}px; width: ${barWidth}px; background: ${colorScheme.gradient};"></div>
+
+                        <!-- 입고 -->
+                        <div class="absolute -translate-x-1/2 pointer-events-none" style="top: ${topPx}px; left: ${ldLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
+                            <span class="absolute bottom-2.5 text-[9px] font-black ${colorScheme.text} bg-white border ${colorScheme.border} px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap">
+                                입고 ${group.ld.holiday_flag ? '<span class="text-rose-500 font-extrabold text-[8px]">공</span>' : ''}
+                            </span>
+                            <span class="marker-dot ${colorScheme.marker} z-10 shrink-0"></span>
+                            <span class="absolute top-2.5 text-[9px] font-extrabold ${colorScheme.date} whitespace-nowrap">${group.ld.start.substring(5)}</span>
+                        </div>
+
+                        <!-- 크리닝 -->
+                        <div class="absolute -translate-x-1/2 pointer-events-none" style="top: ${topPx}px; left: ${cleanLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
+                            <span class="absolute bottom-2.5 text-[9px] font-black ${colorScheme.text} bg-white border ${colorScheme.border} px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap">
+                                크리닝 ${group.clean.holiday_flag ? '<span class="text-rose-500 font-extrabold text-[8px]">공</span>' : ''}
+                            </span>
+                            <span class="marker-dot ${colorScheme.marker} z-10 shrink-0"></span>
+                            <span class="absolute top-2.5 text-[9px] font-extrabold ${colorScheme.date} whitespace-nowrap">${group.clean.start.substring(5)}</span>
+                        </div>
+
+                        <!-- 작업시작 -->
+                        <div class="absolute -translate-x-1/2 pointer-events-none" style="top: ${topPx}px; left: ${workStartLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
+                            <span class="absolute bottom-2.5 text-[9px] font-black ${colorScheme.text} bg-white border ${colorScheme.border} px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap">
+                                작업시작 ${group.work.holiday_flag ? '<span class="text-rose-500 font-extrabold text-[8px]">공</span>' : ''}
+                            </span>
+                            <span class="marker-dot ${colorScheme.marker} z-10 shrink-0"></span>
+                            <span class="absolute top-2.5 text-[9px] font-extrabold ${colorScheme.date} whitespace-nowrap">${group.work.start.substring(5)}</span>
+                        </div>
+
+                        <!-- 작업완료 -->
+                        <div class="absolute -translate-x-1/2 pointer-events-none" style="top: ${topPx}px; left: ${workEndLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
+                            <span class="absolute bottom-2.5 text-[9px] font-black ${colorScheme.text} bg-white border ${colorScheme.border} px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap">
+                                작업완료
+                            </span>
+                            <span class="marker-dot ${colorScheme.marker} z-10 shrink-0"></span>
+                            <span class="absolute top-2.5 text-[9px] font-extrabold ${colorScheme.date} whitespace-nowrap">${group.work.end.substring(5)}</span>
+                        </div>
+
+                        <!-- 검사완료 -->
+                        <div class="absolute -translate-x-1/2 pointer-events-none" style="top: ${topPx}px; left: ${inspectLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
+                            <span class="absolute bottom-2.5 text-[9px] font-black ${colorScheme.text} bg-white border ${colorScheme.border} px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap">
+                                검사 ${group.inspect.holiday_flag ? '<span class="text-rose-500 font-extrabold text-[8px]">공</span>' : ''}
+                            </span>
+                            <span class="marker-dot ${colorScheme.marker} z-10 shrink-0"></span>
+                            <span class="absolute top-2.5 text-[9px] font-extrabold ${colorScheme.date} whitespace-nowrap">${group.inspect.start.substring(5)}</span>
+                        </div>
+
+                        <!-- PT (탑재) -->
+                        <div class="absolute -translate-x-1/2 z-20 pointer-events-none" style="top: ${topPx}px; left: ${ptLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
+                            <span class="absolute bottom-2.5 text-[9px] font-black text-emerald-700 bg-white border-2 border-emerald-500 px-1.5 py-0.5 rounded shadow-md flex items-center gap-0.5 whitespace-nowrap">
+                                PT ${group.pt.holiday_flag ? '<span class="text-rose-500 font-extrabold text-[8px]">공</span>' : ''}
+                            </span>
+                            <span class="marker-diamond bg-emerald-600 z-20 shrink-0"></span>
+                            <span class="absolute top-2.5 text-[9px] font-black text-emerald-600 whitespace-nowrap">${group.pt.start.substring(5)}</span>
+                        </div>
+                    `;
+                };
+
+                container.innerHTML += `
+                    <div class="gantt-365-layout items-center hover:bg-slate-50/80 transition relative">
+                        
+                        <!-- 1열 틀고정 패널 (호선 요약 정보 + 수정 제어 - w-[280px] 균등 2단 분할 레이아웃) -->
+                        <div class="sticky-col-left h-36 w-[280px] min-w-[280px] bg-white border-r-2 border-slate-300 flex flex-col divide-y divide-slate-100 p-2.5 justify-between">
+                            <!-- 1. 상단 트랙 영역 (쌍A - 높이 64px) -->
+                            <div class="flex flex-col justify-center h-[64px] pb-1.5">
+                                <!-- 호선 넘버 (큰 사이즈 bold) & Panel 배지 -->
+                                <div class="flex items-center justify-between">
+                                    <span class="font-black text-sm text-slate-900 tracking-tight truncate max-w-[170px]" title="${proj.vessel_id}">${proj.vessel_id}</span>
+                                    <span class="text-[9px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-1.5 py-0.5 rounded-lg font-black shrink-0">${proj.panel}</span>
+                                </div>
+                                <!-- 쌍A 정보 및 지연 배지 -->
+                                <div class="flex items-center justify-between mt-1.5 text-[11px] font-bold text-slate-600">
+                                    <div class="flex items-center space-x-1.5">
+                                        <span class="text-slate-800">(3/4TK)</span>
+                                        <span class="text-[9px] bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-black border border-blue-200 shrink-0">${proj.vendor_A || '한국'}</span>
+                                        <span class="text-blue-600 font-black">PT: ${proj.pt_date_A.substring(5)}</span>
+                                    </div>
+                                    ${proj.dates && proj.dates.warningA 
+                                        ? '<span class="bg-rose-50 text-rose-600 text-[8px] font-black px-1.5 py-0.5 rounded border border-rose-200 animate-pulse">지연</span>' 
+                                        : '<span class="bg-emerald-50 text-emerald-700 text-[8px] font-black px-1.5 py-0.5 rounded border border-emerald-200">정상</span>'}
+                                </div>
+                            </div>
+
+                            <!-- 2. 하단 트랙 영역 (쌍B & 관리자 제어 - 높이 64px) -->
+                            <div class="flex flex-col justify-center h-[64px] pt-1.5">
+                                <!-- 쌍B 정보 및 지연 배지 -->
+                                <div class="flex items-center justify-between text-[11px] font-bold text-slate-600">
+                                    <div class="flex items-center space-x-1.5">
+                                        <span class="text-slate-800">(1/2TK)</span>
+                                        <span class="text-[9px] bg-teal-50 text-teal-700 px-1 py-0.5 rounded font-black border border-teal-200 shrink-0">${proj.vendor_B || '한국'}</span>
+                                        <span class="text-teal-600 font-black">PT: ${proj.pt_date_B.substring(5)}</span>
+                                    </div>
+                                    ${proj.dates && proj.dates.warningB 
+                                        ? '<span class="bg-rose-50 text-rose-600 text-[8px] font-black px-1.5 py-0.5 rounded border border-rose-200 animate-pulse">지연</span>' 
+                                        : '<span class="bg-emerald-50 text-emerald-700 text-[8px] font-black px-1.5 py-0.5 rounded border border-emerald-200">정상</span>'}
+                                </div>
+                                <!-- 하단 관리자 제어 버튼 및 통합 수동검토 뱃지 -->
+                                <div class="flex items-center justify-between mt-1.5 pt-1 border-t border-slate-100/50">
+                                    <div class="flex items-center space-x-1.5">
+                                        ${editButtonsHtml}
+                                    </div>
+                                    ${conflictBadge}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 365개 세부 배경 격자 셀 뭉치 -->
+                        ${cellsHtml}
+
+                        <!-- 📌 오버레이 공정선 및 마일스톤 도형 기호 뭉치 (절대 좌표화 적용) -->
+                        <div class="absolute inset-0 pointer-events-none z-10" style="left: 280px; width: 18980px;">
+                            
+                            <!-- Group A Timeline (Y축 상단 - 36px 센터링) -->
+                            ${proj.dates ? renderGroupTrack(proj.dates.groupA, 36, {
+                                gradient: 'linear-gradient(to right, #3b82f6, #6366f1)',
+                                text: 'text-blue-700',
+                                border: 'border-blue-200',
+                                marker: 'bg-blue-600',
+                                date: 'text-blue-600'
+                            }) : ''}
+
+                            <!-- Group B Timeline (Y축 하단 - 108px 센터링) -->
+                            ${proj.dates ? renderGroupTrack(proj.dates.groupB, 108, {
+                                gradient: 'linear-gradient(to right, #0d9488, #4f46e5)',
+                                text: 'text-teal-700',
+                                border: 'border-teal-200',
+                                marker: 'bg-teal-600',
+                                date: 'text-teal-600'
+                            }) : ''}
+
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // 오늘 위치로 가로 스크롤 강제 이동
+        function scrollToToday() {
+            const container = document.getElementById('timeline-scroll-container');
+            const start = START_DATE.getTime();
+            const today = TODAY_DATE.getTime();
+            
+            const diffDays = (today - start) / (1000 * 60 * 60 * 24);
+            const targetLeft = (diffDays * 52) - (container.clientWidth / 2) + 280;
+            
+            container.scrollTo({
+                left: Math.max(0, targetLeft),
+                behavior: 'smooth'
+            });
+            showToast("현재 오늘 날짜 위치로 스케줄 보드가 정렬되었습니다!");
+        }
+
+        // 폼 모달 관리
+        function openAddModal() {
+            document.getElementById('add-modal').classList.remove('hidden');
+            previewAddCalculation();
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+        }
+
+        function previewAddCalculation() {
+            const ptAStr = document.getElementById('add-form-pt-a').value;
+            const ptBStr = document.getElementById('add-form-pt-b').value;
+            if (!ptAStr || !ptBStr) return;
+
+            const previewA = calculateReverseSchedule(ptAStr);
+            const previewB = calculateReverseSchedule(ptBStr);
+            
+            document.getElementById('prev-ld-a').innerText = previewA.ld.start;
+            document.getElementById('prev-ld-b').innerText = previewB.ld.start;
+            document.getElementById('prev-inspect-a').innerText = previewA.inspect.start;
+            document.getElementById('prev-inspect-b').innerText = previewB.inspect.start;
+        }
+
+        // 신규 호선 추가 등록
+        function handleNewProjectSubmit(e) {
+            e.preventDefault();
+
+            const hull = document.getElementById('add-form-hull').value;
+            const panel = document.getElementById('add-form-block').value;
+            const ptA = document.getElementById('add-form-pt-a').value;
+            const ptB = document.getElementById('add-form-pt-b').value;
+            const vendorA = document.getElementById('add-form-vendor-a').value;
+            const vendorB = document.getElementById('add-form-vendor-b').value;
+
+            const newProj = {
+                id: Date.now(),
+                vessel_id: hull,
+                panel: panel,
+                pt_date_A: ptA,
+                pt_date_B: ptB,
+                vendor_A: vendorA,
+                vendor_B: vendorB,
+                dates: {}
+            };
+
+            projects.push(newProj);
+            analyzeAndRender();
+            closeAddModal();
+            showToast(`✅ ${hull} 호선이 성공적으로 추가되었습니다.`);
+            document.getElementById('add-form').reset();
+        }
+
+        // 수동 고정 체크박스 온/오프 상태에 따른 필드 활성화 제어
+        function toggleManualFields(group) {
+            const suffix = group.toLowerCase();
+            const isChecked = document.getElementById(`edit-form-manual-${suffix}`).checked;
+            
+            const fields = ['ld', 'clean', 'work-start', 'work-end', 'inspect'];
+            fields.forEach(f => {
+                document.getElementById(`edit-form-${f}-${suffix}`).disabled = !isChecked;
+            });
+        }
+
+        // 수정 모달 열기
+        function openEditModal(id) {
+            const proj = projects.find(p => p.id === id);
+            if (!proj) return;
+
+            document.getElementById('edit-modal').classList.remove('hidden');
+
+            document.getElementById('edit-form-id').value = proj.id;
+            document.getElementById('edit-form-hull').value = proj.vessel_id;
+            document.getElementById('edit-form-block').value = proj.panel;
+            
+            // 담당업체 로드
+            document.getElementById('edit-form-vendor-a').value = proj.vendor_A || '한국';
+            document.getElementById('edit-form-vendor-b').value = proj.vendor_B || '한국';
+
+            // 수동 체크박스 상태 로드
+            document.getElementById('edit-form-manual-a').checked = proj.is_manual_A || false;
+            document.getElementById('edit-form-manual-b').checked = proj.is_manual_B || false;
+
+            // 3/4TK 날짜 값들 로드
+            const mdA = proj.dates_A || {};
+            document.getElementById('edit-form-ld-a').value = mdA.ld || '';
+            document.getElementById('edit-form-clean-a').value = mdA.clean || '';
+            document.getElementById('edit-form-work-start-a').value = mdA.work_start || '';
+            document.getElementById('edit-form-work-end-a').value = mdA.work_end || '';
+            document.getElementById('edit-form-inspect-a').value = mdA.inspect || '';
+            document.getElementById('edit-form-pt-a').value = mdA.pt || proj.pt_date_A || '';
+
+            // 1/2TK 날짜 값들 로드
+            const mdB = proj.dates_B || {};
+            document.getElementById('edit-form-ld-b').value = mdB.ld || '';
+            document.getElementById('edit-form-clean-b').value = mdB.clean || '';
+            document.getElementById('edit-form-work-start-b').value = mdB.work_start || '';
+            document.getElementById('edit-form-work-end-b').value = mdB.work_end || '';
+            document.getElementById('edit-form-inspect-b').value = mdB.inspect || '';
+            document.getElementById('edit-form-pt-b').value = mdB.pt || proj.pt_date_B || '';
+
+            // 체크 상태에 따라 입력 필드 활성/비활성화 처리
+            toggleManualFields('A');
+            toggleManualFields('B');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        // 일정 변경 적용 제출
+        function handleEditProjectSubmit(e) {
+            e.preventDefault();
+
+            const id = parseInt(document.getElementById('edit-form-id').value);
+            const proj = projects.find(p => p.id === id);
+            if (!proj) return;
+
+            proj.vessel_id = document.getElementById('edit-form-hull').value;
+            proj.panel = document.getElementById('edit-form-block').value;
+            proj.vendor_A = document.getElementById('edit-form-vendor-a').value;
+            proj.vendor_B = document.getElementById('edit-form-vendor-b').value;
+
+            // 3/4TK 저장 처리
+            const isManualA = document.getElementById('edit-form-manual-a').checked;
+            proj.is_manual_A = isManualA;
+            proj.pt_date_A = document.getElementById('edit-form-pt-a').value;
+            
+            if (isManualA) {
+                proj.dates_A = {
+                    ld: document.getElementById('edit-form-ld-a').value,
+                    clean: document.getElementById('edit-form-clean-a').value,
+                    work_start: document.getElementById('edit-form-work-start-a').value,
+                    work_end: document.getElementById('edit-form-work-end-a').value,
+                    inspect: document.getElementById('edit-form-inspect-a').value,
+                    pt: proj.pt_date_A
+                };
+            } else {
+                proj.dates_A = null; // 자동 계산으로 역산 원복
+            }
+
+            // 1/2TK 저장 처리
+            const isManualB = document.getElementById('edit-form-manual-b').checked;
+            proj.is_manual_B = isManualB;
+            proj.pt_date_B = document.getElementById('edit-form-pt-b').value;
+
+            if (isManualB) {
+                proj.dates_B = {
+                    ld: document.getElementById('edit-form-ld-b').value,
+                    clean: document.getElementById('edit-form-clean-b').value,
+                    work_start: document.getElementById('edit-form-work-start-b').value,
+                    work_end: document.getElementById('edit-form-work-end-b').value,
+                    inspect: document.getElementById('edit-form-inspect-b').value,
+                    pt: proj.pt_date_B
+                };
+            } else {
+                proj.dates_B = null; // 자동 계산으로 역산 원복
+            }
+
+            analyzeAndRender();
+            closeEditModal();
+            showToast("✏️ 호선의 정보가 수정 및 재계산되었습니다!");
+        }
+
+        // 호선 삭제
+        function deleteProject(id) {
+            projects = projects.filter(p => p.id !== id);
+            analyzeAndRender();
+            showToast("호선 스케쥴이 삭제되었습니다.");
+        }
+
+        // 클립보드 복사
+        function copyDataToClipboard() {
+            const area = document.getElementById('data-json-area');
+            area.select();
+            document.execCommand('copy');
+            showToast("📋 드라이도크 일정 JSON이 클립보드에 복사되었습니다!");
+        }
+
+        // 외부 수작업 데이터 로드 및 통합 백업 적용
+        function loadExternalData() {
+            const text = document.getElementById('data-json-area').value;
+            try {
+                const parsed = JSON.parse(text);
+                if (parsed && parsed.projects && parsed.announcements) {
+                    projects = parsed.projects;
+                    ensureProjectDataIntegrity(projects);
+                    announcements = parsed.announcements;
+                    localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
+                    renderAnnouncements();
+                    analyzeAndRender();
+                    showToast("📥 통합 일정 및 공지사항 백업 데이터가 정상 적용되었습니다.");
+                } else if (Array.isArray(parsed)) {
+                    // 하위 호환성 유지: 이전 스케줄 단독 데이터인 경우
+                    projects = parsed;
+                    ensureProjectDataIntegrity(projects);
+                    analyzeAndRender();
+                    showToast("📥 스케줄 단독 데이터가 성공적으로 동기화 적용되었습니다.");
+                } else {
+                    showToast("⚠️ 올바른 통합 백업 규격 { projects: [], announcements: [] } JSON을 입력해주세요.");
+                }
+            } catch (err) {
+                showToast("⚠️ JSON 파싱에 오류가 발생했습니다. 백업 텍스트를 다시 확인해 주세요.");
+            }
+        }
+
+        // 외부 웹앱 독립 창 호출 함수
+        function openExternalApp(url) {
+            window.open(url, '_blank', 'width=1280,height=850,scrollbars=yes,resizable=yes');
+            showToast("🌐 독립된 새 창으로 외부 웹앱을 호출했습니다.");
+        }
+
+        // Toast 알림 전용 함수
+        function showToast(msg) {
+            const toast = document.getElementById('toast-notif');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
