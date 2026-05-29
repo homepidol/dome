@@ -1249,7 +1249,125 @@
 
             const sortedProjects = [...projects].sort((a, b) => new Date(a.pt_date_A) - new Date(b.pt_date_A));
 
-            sortedProjects.forEach((proj) => {
+            const CHART_COLOR_SCHEMES = [
+                // Palette 1: Indigo & Purple (보라/남색 계열)
+                {
+                    A: {
+                        gradient: 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                        badge: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                        text: 'text-indigo-700',
+                        border: 'border-indigo-200',
+                        marker: 'bg-indigo-600',
+                        date: 'text-indigo-600'
+                    },
+                    B: {
+                        gradient: 'linear-gradient(to right, #8b5cf6, #d946ef)',
+                        badge: 'bg-purple-50 text-purple-700 border-purple-200',
+                        text: 'text-purple-700',
+                        border: 'border-purple-200',
+                        marker: 'bg-purple-600',
+                        date: 'text-purple-600'
+                    }
+                },
+                // Palette 2: Emerald & Teal (초록/민트 계열)
+                {
+                    A: {
+                        gradient: 'linear-gradient(to right, #10b981, #14b8a6)',
+                        badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                        text: 'text-emerald-700',
+                        border: 'border-emerald-200',
+                        marker: 'bg-emerald-600',
+                        date: 'text-emerald-600'
+                    },
+                    B: {
+                        gradient: 'linear-gradient(to right, #14b8a6, #06b6d4)',
+                        badge: 'bg-teal-50 text-teal-700 border-teal-200',
+                        text: 'text-teal-700',
+                        border: 'border-teal-200',
+                        marker: 'bg-teal-600',
+                        date: 'text-teal-600'
+                    }
+                },
+                // Palette 3: Rose & Amber (붉은/오렌지 계열)
+                {
+                    A: {
+                        gradient: 'linear-gradient(to right, #f43f5e, #f97316)',
+                        badge: 'bg-rose-50 text-rose-700 border-rose-200',
+                        text: 'text-rose-700',
+                        border: 'border-rose-200',
+                        marker: 'bg-rose-600',
+                        date: 'text-rose-600'
+                    },
+                    B: {
+                        gradient: 'linear-gradient(to right, #f97316, #eab308)',
+                        badge: 'bg-amber-50 text-amber-700 border-amber-200',
+                        text: 'text-amber-700',
+                        border: 'border-amber-200',
+                        marker: 'bg-amber-600',
+                        date: 'text-amber-600'
+                    }
+                },
+                // Palette 4: Cyan & Sky (청량한 하늘색 계열)
+                {
+                    A: {
+                        gradient: 'linear-gradient(to right, #06b6d4, #0ea5e9)',
+                        badge: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+                        text: 'text-cyan-700',
+                        border: 'border-cyan-200',
+                        marker: 'bg-cyan-600',
+                        date: 'text-cyan-600'
+                    },
+                    B: {
+                        gradient: 'linear-gradient(to right, #0ea5e9, #3b82f6)',
+                        badge: 'bg-sky-50 text-sky-700 border-sky-200',
+                        text: 'text-sky-700',
+                        border: 'border-sky-200',
+                        marker: 'bg-sky-600',
+                        date: 'text-sky-600'
+                    }
+                },
+                // Palette 5: Fuchsia & Pink (세련된 마젠타 계열)
+                {
+                    A: {
+                        gradient: 'linear-gradient(to right, #d946ef, #ec4899)',
+                        badge: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200',
+                        text: 'text-fuchsia-700',
+                        border: 'border-fuchsia-200',
+                        marker: 'bg-fuchsia-600',
+                        date: 'text-fuchsia-600'
+                    },
+                    B: {
+                        gradient: 'linear-gradient(to right, #ec4899, #f43f5e)',
+                        badge: 'bg-pink-50 text-pink-700 border-pink-200',
+                        text: 'text-pink-700',
+                        border: 'border-pink-200',
+                        marker: 'bg-pink-600',
+                        date: 'text-pink-600'
+                    }
+                },
+                // Palette 6: Violet & Blue (클래식 바이올렛/블루 계열)
+                {
+                    A: {
+                        gradient: 'linear-gradient(to right, #8b5cf6, #3b82f6)',
+                        badge: 'bg-violet-50 text-violet-700 border-violet-200',
+                        text: 'text-violet-700',
+                        border: 'border-violet-200',
+                        marker: 'bg-violet-600',
+                        date: 'text-violet-600'
+                    },
+                    B: {
+                        gradient: 'linear-gradient(to right, #3b82f6, #0ea5e9)',
+                        badge: 'bg-blue-50 text-blue-700 border-blue-200',
+                        text: 'text-blue-700',
+                        border: 'border-blue-200',
+                        marker: 'bg-blue-600',
+                        date: 'text-blue-600'
+                    }
+                }
+            ];
+
+            sortedProjects.forEach((proj, idx) => {
+                const scheme = CHART_COLOR_SCHEMES[idx % CHART_COLOR_SCHEMES.length];
                 let cellsHtml = '';
 
                 // 경고 뱃지 처리
@@ -1382,9 +1500,9 @@
                                 <div class="flex items-center justify-between mt-1.5 text-[11px] font-bold text-slate-600">
                                     <div class="flex items-center space-x-1">
                                         <span class="text-slate-800 text-[10px]">(3/4TK)</span>
-                                        <span class="text-[8px] bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-black border border-blue-200 shrink-0">4T:${proj.vendor_4 || proj.vendor_A || '한국'}</span>
-                                        <span class="text-[8px] bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-black border border-blue-200 shrink-0">3T:${proj.vendor_3 || proj.vendor_A || '한국'}</span>
-                                        <span class="text-blue-600 font-black">PT:${proj.pt_date_A.substring(5)}</span>
+                                        <span class="text-[8px] ${scheme.A.badge} px-1 py-0.5 rounded font-black border shrink-0">4T:${proj.vendor_4 || proj.vendor_A || '한국'}</span>
+                                        <span class="text-[8px] ${scheme.A.badge} px-1 py-0.5 rounded font-black border shrink-0">3T:${proj.vendor_3 || proj.vendor_A || '한국'}</span>
+                                        <span class="${scheme.A.date} font-black">PT:${proj.pt_date_A.substring(5)}</span>
                                     </div>
                                     ${proj.dates && proj.dates.warningA 
                                         ? '<span class="bg-rose-50 text-rose-600 text-[8px] font-black px-1.5 py-0.5 rounded border border-rose-200 animate-pulse">지연</span>' 
@@ -1398,9 +1516,9 @@
                                 <div class="flex items-center justify-between text-[11px] font-bold text-slate-600">
                                     <div class="flex items-center space-x-1">
                                         <span class="text-slate-800 text-[10px]">(1/2TK)</span>
-                                        <span class="text-[8px] bg-teal-50 text-teal-700 px-1 py-0.5 rounded font-black border border-teal-200 shrink-0">2T:${proj.vendor_2 || proj.vendor_B || '한국'}</span>
-                                        <span class="text-[8px] bg-teal-50 text-teal-700 px-1 py-0.5 rounded font-black border border-teal-200 shrink-0">1T:${proj.vendor_1 || proj.vendor_B || '한국'}</span>
-                                        <span class="text-teal-600 font-black">PT:${proj.pt_date_B.substring(5)}</span>
+                                        <span class="text-[8px] ${scheme.B.badge} px-1 py-0.5 rounded font-black border shrink-0">2T:${proj.vendor_2 || proj.vendor_B || '한국'}</span>
+                                        <span class="text-[8px] ${scheme.B.badge} px-1 py-0.5 rounded font-black border shrink-0">1T:${proj.vendor_1 || proj.vendor_B || '한국'}</span>
+                                        <span class="${scheme.B.date} font-black">PT:${proj.pt_date_B.substring(5)}</span>
                                     </div>
                                     ${proj.dates && proj.dates.warningB 
                                         ? '<span class="bg-rose-50 text-rose-600 text-[8px] font-black px-1.5 py-0.5 rounded border border-rose-200 animate-pulse">지연</span>' 
@@ -1423,22 +1541,10 @@
                         <div class="absolute inset-0 pointer-events-none z-10" style="left: 280px; width: 18980px;">
                             
                             <!-- Group A Timeline (Y축 상단 - 36px 센터링) -->
-                            ${proj.dates ? renderGroupTrack(proj.dates.groupA, 36, {
-                                gradient: 'linear-gradient(to right, #3b82f6, #6366f1)',
-                                text: 'text-blue-700',
-                                border: 'border-blue-200',
-                                marker: 'bg-blue-600',
-                                date: 'text-blue-600'
-                            }) : ''}
+                            ${proj.dates ? renderGroupTrack(proj.dates.groupA, 36, scheme.A) : ''}
 
                             <!-- Group B Timeline (Y축 하단 - 108px 센터링) -->
-                            ${proj.dates ? renderGroupTrack(proj.dates.groupB, 108, {
-                                gradient: 'linear-gradient(to right, #0d9488, #4f46e5)',
-                                text: 'text-teal-700',
-                                border: 'border-teal-200',
-                                marker: 'bg-teal-600',
-                                date: 'text-teal-600'
-                            }) : ''}
+                            ${proj.dates ? renderGroupTrack(proj.dates.groupB, 108, scheme.B) : ''}
 
                         </div>
                     </div>
