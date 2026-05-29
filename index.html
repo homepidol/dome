@@ -34,10 +34,10 @@
             background: #475569;
         }
 
-        /* 365일 캘린더 그리드 비율 선언 (호선 정보 컬럼: 280px, 일별 셀 폭: var(--col-width, 52px)) */
+        /* 365일 캘린더 그리드 비율 선언 (호선 정보 컬럼: 238px, 일별 셀 폭: var(--col-width, 44px)) */
         .gantt-365-layout {
             display: grid;
-            grid-template-columns: 280px repeat(365, var(--col-width, 52px));
+            grid-template-columns: 238px repeat(365, var(--col-width, 44px));
         }
 
         /* 호선 정보 틀고정 */
@@ -113,67 +113,76 @@
 <body class="bg-slate-100 text-slate-800 h-screen overflow-hidden flex flex-col antialiased selection:bg-slate-200">
 
     <!-- 통합 상단 관제 헤더 -->
-    <header class="border-b-2 border-slate-300 bg-white sticky top-0 z-50 px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div class="flex items-center space-x-3">
-            <div class="bg-slate-800 p-3 rounded-xl text-white shadow-md">
-                <i class="fa-solid fa-industry text-2xl"></i>
+    <header class="border-b-2 border-slate-300 bg-white sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-[1800px] mx-auto w-full flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex flex-col md:flex-row md:items-center gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-slate-800 p-3 rounded-xl text-white shadow-md">
+                        <i class="fa-solid fa-industry text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-black text-lg text-slate-950 tracking-tight">L/Dome Cover 관리시스템</h1>
+                        <p class="text-xs text-slate-600 font-bold">copyright 2026.5.29 ch.s.Park</p>
+                    </div>
+                </div>
+                
+                <!-- 오늘로 이동 및 오늘 날짜 연동 인디케이터 (왼쪽 타이틀 옆으로 이동) -->
+                <div class="flex items-center gap-2 md:ml-4">
+                    <button onclick="scrollToToday()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl px-4 py-2 text-xs font-black transition shadow-sm">
+                        <i class="fa-solid fa-crosshairs mr-1"></i> 오늘로 이동
+                    </button>
+                    <div class="bg-rose-50 border border-rose-200 rounded-xl px-4 py-2 text-xs flex items-center space-x-2 text-rose-700 font-extrabold shadow-sm">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-600"></span>
+                        </span>
+                        <span id="live-today-text">오늘: 불러오는 중...</span>
+                    </div>
+                </div>
             </div>
-            <div>
-                <h1 class="font-black text-lg text-slate-950 tracking-tight">L/Dome Cover 관리시스템</h1>
-                <p class="text-xs text-slate-600 font-bold">copyright 2026.5.29 ch.s.Park</p>
-            </div>
-        </div>
-        
-        <!-- 실시간 오늘 날짜 연동 인디케이터, 관리자 모드 토글, 외부 웹앱 호출 -->
-        <div class="flex flex-wrap items-center gap-3">
-            <!-- 🌐 외부 웹앱 호출 독립 버튼 2개 -->
-            <button onclick="openExternalApp('http://homepidol.github.io/EDU2')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl px-3 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
-                <i class="fa-solid fa-arrow-up-right-from-square text-indigo-600"></i>
-                <span>직무교육일정</span>
-            </button>
-            <button onclick="openExternalApp('https://www.wikipedia.org')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl px-3 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
-                <i class="fa-solid fa-square-poll-vertical text-emerald-600"></i>
-                <span>생산 모니터링 웹앱</span>
-            </button>
             
-            <button onclick="scrollToToday()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl px-4 py-2 text-xs font-black transition shadow-sm">
-                <i class="fa-solid fa-crosshairs mr-1"></i> 오늘로 이동
-            </button>
-            <div class="bg-rose-50 border border-rose-200 rounded-xl px-4 py-2 text-xs flex items-center space-x-2 text-rose-700 font-extrabold shadow-sm">
-                <span class="relative flex h-3 w-3">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-600"></span>
-                </span>
-                <span id="live-today-text">오늘: 불러오는 중...</span>
+            <!-- 실시간 오늘 날짜 연동 인디케이터, 관리자 모드 토글, 외부 웹앱 호출 -->
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- 🌐 외부 웹앱 호출 독립 버튼 2개 -->
+                <button onclick="openExternalApp('edu_schedule.html')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl px-3 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-indigo-600"></i>
+                    <span>직무교육일정</span>
+                </button>
+                <button onclick="openExternalApp('https://www.wikipedia.org')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl px-3 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
+                    <i class="fa-solid fa-square-poll-vertical text-emerald-600"></i>
+                    <span>생산 모니터링 웹앱</span>
+                </button>
+                
+                <!-- 🔒 관리자 모드 전환 스위치 (아이콘 전용) -->
+                <button id="admin-mode-toggle" onclick="toggleAdminMode()" title="관리자 모드 전환" class="bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-700 rounded-xl w-9 h-9 flex items-center justify-center text-xs font-black transition shadow-sm">
+                    <i id="admin-mode-icon" class="fa-solid fa-lock text-sm"></i>
+                </button>
             </div>
-            <!-- 🔒 관리자 모드 전환 스위치 -->
-            <button id="admin-mode-toggle" onclick="toggleAdminMode()" class="bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-700 rounded-xl px-4 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
-                <i id="admin-mode-icon" class="fa-solid fa-lock"></i>
-                <span id="admin-mode-text">관리자 모드 OFF</span>
-            </button>
         </div>
     </header>
 
     <!-- 📢 작업장 주요 공지 사항 (Announcement Board - 스크롤시 헤더 밑에 고정 배치) -->
-    <section class="sticky top-[78px] z-40 bg-white/95 backdrop-blur-md border-b-2 border-slate-300 px-12 py-8 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div class="flex items-center space-x-5 shrink-0">
-            <div class="flex items-center space-x-3">
-                <span class="text-amber-600 text-2xl"><i class="fa-solid fa-bullhorn animate-bounce"></i></span>
-                <h2 class="text-base md:text-lg font-black text-slate-950 uppercase tracking-wider">작업장 공지</h2>
+    <section class="sticky top-[78px] z-40 bg-white/95 backdrop-blur-md border-b-2 border-slate-300 px-6 py-4 shadow-md">
+        <div class="max-w-[1800px] mx-auto w-full flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-center space-x-5 shrink-0">
+                <div class="flex items-center space-x-3">
+                    <span class="text-amber-600 text-2xl"><i class="fa-solid fa-bullhorn animate-bounce"></i></span>
+                    <h2 class="text-base md:text-lg font-black text-slate-950 uppercase tracking-wider">작업장 공지</h2>
+                </div>
+                <!-- ℹ️ 공정 기준 안내 버튼 -->
+                <button onclick="openRulesModal()" class="text-xs bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 px-3 py-1.5 rounded-xl font-black transition flex items-center space-x-1.5 shadow-sm">
+                    <i class="fa-solid fa-circle-info text-amber-600"></i>
+                    <span>공정 기준 안내</span>
+                </button>
+                <!-- 공지 등록 버튼 (관리자 모드에서만 노출 - 공지생성 버튼) -->
+                <button id="admin-add-announce-btn" onclick="openAnnounceModal()" class="hidden bg-amber-600 hover:bg-amber-500 text-white px-4 py-1.5 rounded-xl text-xs font-black transition shadow-sm">
+                    <i class="fa-solid fa-plus mr-1"></i>공지생성
+                </button>
             </div>
-            <!-- ℹ️ 공정 기준 안내 버튼 -->
-            <button onclick="openRulesModal()" class="text-xs bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 px-3 py-1.5 rounded-xl font-black transition flex items-center space-x-1.5 shadow-sm">
-                <i class="fa-solid fa-circle-info text-amber-600"></i>
-                <span>공정 기준 안내</span>
-            </button>
-            <!-- 공지 등록 버튼 (관리자 모드에서만 노출 - 공지생성 버튼) -->
-            <button id="admin-add-announce-btn" onclick="openAnnounceModal()" class="hidden bg-amber-600 hover:bg-amber-500 text-white px-4 py-1.5 rounded-xl text-xs font-black transition shadow-sm">
-                <i class="fa-solid fa-plus mr-1"></i>공지생성
-            </button>
-        </div>
-        <!-- 공지 리스트 (가로 폭 90% 조정, 4개 초과 시 스크롤 max-h-[275px] 제한, 간격 space-y-2 적용) -->
-        <div id="announcement-board-list" class="flex-1 min-w-0 max-w-[90%] w-full space-y-2 pr-2 max-h-[275px] overflow-y-auto relative">
-            <!-- JS 동적 추가 -->
+            <!-- 공지 리스트 (가로 폭 90% 조정, 4개 초과 시 스크롤 max-h-[275px] 제한, 간격 space-y-2 적용) -->
+            <div id="announcement-board-list" class="flex-1 min-w-0 max-w-[90%] w-full space-y-2 pr-2 max-h-[275px] overflow-y-auto relative">
+                <!-- JS 동적 추가 -->
+            </div>
         </div>
     </section>
 
@@ -196,54 +205,77 @@
                     </button>
                 </div>
                 <!-- 범례 아이콘 마커 요약 -->
-                <div class="flex flex-wrap items-center gap-3 text-[10px] font-bold text-slate-600">
-                    <span class="flex items-center space-x-1"><span class="marker-dot bg-blue-600"></span><span>입고</span></span>
-                    <span class="flex items-center space-x-1"><span class="marker-dot bg-teal-600"></span><span>크리닝</span></span>
-                    <span class="flex items-center space-x-1"><span class="marker-dot bg-indigo-600"></span><span>작업</span></span>
-                    <span class="flex items-center space-x-1"><span class="marker-dot bg-purple-600"></span><span>검사</span></span>
-                    <span class="flex items-center space-x-1"><span class="marker-diamond bg-emerald-600"></span><span>PT (탑재)</span></span>
-                    <span class="px-2 py-0.5 rounded weekend-bg-highlight text-rose-700 border border-rose-300">일요일 및 공휴일</span>
-                    <span class="text-[9px] text-rose-500 font-extrabold flex items-center gap-0.5"><span class="w-2.5 h-2.5 bg-white border border-rose-300 rounded flex items-center justify-center text-[7px] text-rose-600">공</span><span>공휴일 겹침</span></span>
+                <div class="flex flex-wrap items-center gap-3 text-[12px] font-black text-slate-700">
+                    <span class="flex items-center space-x-1.5"><span class="marker-dot bg-blue-600"></span><span>입고</span></span>
+                    <span class="flex items-center space-x-1.5"><span class="marker-dot bg-teal-600"></span><span>크리닝</span></span>
+                    <span class="flex items-center space-x-1.5"><span class="marker-dot bg-indigo-600"></span><span>작업</span></span>
+                    <span class="flex items-center space-x-1.5"><span class="marker-dot bg-purple-600"></span><span>검사</span></span>
+                    <span class="flex items-center space-x-1.5"><span class="marker-diamond bg-emerald-600"></span><span>PT (탑재)</span></span>
+                    <span class="px-2.5 py-0.5 rounded weekend-bg-highlight text-rose-700 border border-rose-300">일요일 및 공휴일</span>
+                    <span class="text-[11px] text-rose-500 font-black flex items-center gap-1"><span class="w-3.5 h-3.5 bg-white border border-rose-300 rounded flex items-center justify-center text-[9px] text-rose-600 font-black">공</span><span>공휴일 겹침</span></span>
                 </div>
             </div>
 
-            <!-- 🎛️ Gantt Control Toolbar (검색, 배율조절, 정렬) -->
-            <div class="px-5 py-3 border-b border-slate-200 bg-white flex flex-col md:flex-row md:items-center md:justify-between gap-4 shrink-0">
-                <!-- Left: Search Box -->
-                <div class="flex items-center space-x-2">
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                        </span>
-                        <input type="text" id="vessel-search-input" oninput="handleSearchAndSort()" placeholder="호선명 또는 시리즈 검색..." class="w-60 bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 font-bold placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all shadow-sm">
+            <!-- 🎛️ Gantt Control Toolbar (검색, 배율조절, 정렬, 월별 빠른이동) -->
+            <div class="px-5 py-3 border-b border-slate-200 bg-white flex flex-col gap-3 shrink-0">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <!-- Left: Search Box -->
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            </span>
+                            <input type="text" id="vessel-search-input" oninput="handleSearchAndSort()" placeholder="호선명 또는 시리즈 검색..." class="w-60 bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 font-bold placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all shadow-sm">
+                        </div>
+                    </div>
+
+                    <!-- Middle: Timeline Scale Slider -->
+                    <div class="flex items-center justify-center">
+                        <div class="bg-slate-50 border border-slate-300 rounded-full px-4 py-1.5 flex items-center space-x-3 text-xs font-black shadow-sm">
+                            <span class="text-slate-700"><i class="fa-solid fa-magnifying-glass-plus text-indigo-500 mr-1.5"></i>타임라인 배율:</span>
+                            <input type="range" id="timeline-scale-slider" min="20" max="66" step="1" value="44" oninput="updateTimelineScale(this.value)" class="w-32 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                            <span id="timeline-scale-val" class="text-blue-600 font-black whitespace-nowrap">1320px</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Sort Criteria -->
+                    <div class="flex items-center space-x-2 text-xs font-black text-slate-700">
+                        <span>정렬 기준:</span>
+                        <select id="sort-criteria-select" onchange="handleSearchAndSort()" class="bg-white border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 focus:outline-none focus:border-indigo-500 transition-all shadow-sm">
+                            <option value="pt_date_asc">PT 목표일 순 (오름차순)</option>
+                            <option value="pt_date_desc">PT 목표일 순 (내림차순)</option>
+                            <option value="vessel_id_asc">호선명 순</option>
+                            <option value="panel_asc">시리즈 순</option>
+                            <option value="status_desc">수동검토/지연 우선</option>
+                        </select>
                     </div>
                 </div>
-
-                <!-- Middle: Timeline Scale Slider -->
-                <div class="flex items-center justify-center">
-                    <div class="bg-slate-50 border border-slate-300 rounded-full px-4 py-1.5 flex items-center space-x-3 text-xs font-black shadow-sm">
-                        <span class="text-slate-700"><i class="fa-solid fa-magnifying-glass-plus text-indigo-500 mr-1.5"></i>타임라인 배율:</span>
-                        <input type="range" id="timeline-scale-slider" min="20" max="120" step="1" value="52" oninput="updateTimelineScale(this.value)" class="w-32 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
-                        <span id="timeline-scale-val" class="text-blue-600 font-black whitespace-nowrap">1560px</span>
+                
+                <!-- 월별 빠른 이동 숏컷 (디자인 매칭) -->
+                <div class="border-t border-slate-100 pt-2 flex items-center justify-between gap-3 text-xs font-black">
+                    <span class="text-slate-500 shrink-0 flex items-center"><i class="fa-solid fa-calendar-days text-indigo-500 mr-1.5"></i>월별 빠른 이동:</span>
+                    <div class="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
+                        <button onclick="scrollToMonth(0)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">1월</button>
+                        <button onclick="scrollToMonth(1)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">2월</button>
+                        <button onclick="scrollToMonth(2)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">3월</button>
+                        <button onclick="scrollToMonth(3)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">4월</button>
+                        <button onclick="scrollToMonth(4)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">5월</button>
+                        <button onclick="scrollToMonth(5)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">6월</button>
+                        <button onclick="scrollToMonth(6)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">7월</button>
+                        <button onclick="scrollToMonth(7)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">8월</button>
+                        <button onclick="scrollToMonth(8)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">9월</button>
+                        <button onclick="scrollToMonth(9)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">10월</button>
+                        <button onclick="scrollToMonth(10)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">11월</button>
+                        <button onclick="scrollToMonth(11)" class="bg-slate-50 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-1 text-slate-700 font-extrabold transition shadow-sm hover:border-slate-400">12월</button>
                     </div>
-                </div>
-
-                <!-- Right: Sort Criteria -->
-                <div class="flex items-center space-x-2 text-xs font-black text-slate-700">
-                    <span>정렬 기준:</span>
-                    <select id="sort-criteria-select" onchange="handleSearchAndSort()" class="bg-white border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 focus:outline-none focus:border-indigo-500 transition-all shadow-sm">
-                        <option value="pt_date_asc">PT 목표일 순 (오름차순)</option>
-                        <option value="pt_date_desc">PT 목표일 순 (내림차순)</option>
-                        <option value="vessel_id_asc">호선명 순</option>
-                        <option value="panel_asc">시리즈 순</option>
-                        <option value="status_desc">수동검토/지연 우선</option>
-                    </select>
                 </div>
             </div>
 
             <!-- 1년 스케쥴 관제 영역 (가로 약 19,260px 초대형 프레임) -->
             <div id="timeline-scroll-container" class="flex-1 overflow-auto">
-                <div id="timeline-inner-container" class="px-4 pb-4 pt-0">
+                <div id="timeline-inner-container" class="px-4 pb-4 pt-0 relative">
+                    <!-- 📌 실시간 오늘 세로 가이드라인 (동적 위치 - 센터 점선 스타일 적용) -->
+                    <div id="today-guideline" class="absolute top-0 bottom-0 pointer-events-none z-30 border-l-2 border-dashed border-rose-500/80 transition-all duration-150"></div>
                     
                     <!-- 1. 연간 달력 월/일자 헤더 영역 -->
                     <div id="calendar-header-365" class="gantt-365-layout text-center text-xs font-bold text-slate-500 sticky top-0 z-40 bg-slate-100">
@@ -269,12 +301,18 @@
                     </h3>
                     <p class="text-[10px] text-slate-500">호선별 일정 스케줄과 공지사항 전체를 통합하여 전송 및 백업할 수 있는 JSON 규격입니다.</p>
                 </div>
-                <div class="flex space-x-2">
+                <div class="flex flex-wrap gap-2">
                     <button onclick="fetchServerData()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1">
                         <i class="fa-solid fa-cloud-arrow-down text-indigo-600"></i> 서버 데이터 불러오기
                     </button>
                     <button onclick="saveServerData()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1">
                         <i class="fa-solid fa-cloud-arrow-up text-emerald-600"></i> 현재 상태 서버에 저장
+                    </button>
+                    <button onclick="exportDataToFile()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1">
+                        <i class="fa-solid fa-file-arrow-down text-blue-600"></i> 파일로 내보내기
+                    </button>
+                    <button onclick="triggerImportFile()" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1">
+                        <i class="fa-solid fa-file-arrow-up text-amber-600"></i> 파일로 가져오기
                     </button>
                     <button onclick="copyDataToClipboard()" class="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">
                         현재 데이터 클립보드 복사
@@ -650,8 +688,8 @@
         // 관리자 모드 활성화 상태 여부 (최초 시작은 항상 false)
         let isAdminMode = false;
 
-        // 1일 셀당 가로 폭 (기본값 52px, 30~120px 가변)
-        let colWidth = 52;
+        // 1일 셀당 가로 폭 (기본값 44px, 30~120px 가변)
+        let colWidth = 44;
 
         // 매년 동일하게 반복되는 공휴일(월-일) 목록 기반으로 현재 연도 공휴일 리스트 동적 빌드
         const HOLIDAYS_BASE = [
@@ -886,7 +924,7 @@
             // 저장된 colWidth 로드 및 CSS 변수 바인딩
             const savedColWidth = localStorage.getItem('timeline_col_width');
             if (savedColWidth) {
-                colWidth = parseInt(savedColWidth, 10);
+                colWidth = Math.min(parseInt(savedColWidth, 10), 66);
             }
             document.documentElement.style.setProperty('--col-width', `${colWidth}px`);
 
@@ -905,12 +943,12 @@
             dynamicStyle.innerHTML = `
                 .gantt-365-layout {
                     display: grid;
-                    grid-template-columns: 280px repeat(${DAY_COUNT}, var(--col-width, 52px));
+                    grid-template-columns: 238px repeat(${DAY_COUNT}, var(--col-width, 44px));
                 }
             `;
             document.head.appendChild(dynamicStyle);
 
-            const containerWidth = (DAY_COUNT * colWidth) + 280 + 32;
+            const containerWidth = (DAY_COUNT * colWidth) + 238 + 32;
             document.getElementById('timeline-inner-container').style.width = `${containerWidth}px`;
 
             document.getElementById('live-today-text').innerText = `오늘: ${TODAY_STR}`;
@@ -961,7 +999,6 @@
         function updateAdminModeUI(isInitial = false) {
             const toggleBtn = document.getElementById('admin-mode-toggle');
             const icon = document.getElementById('admin-mode-icon');
-            const text = document.getElementById('admin-mode-text');
             
             const addVesselBtn = document.getElementById('admin-add-vessel-btn');
             const resolveBtn = document.getElementById('admin-resolve-btn');
@@ -972,8 +1009,7 @@
                 toggleBtn.classList.replace('bg-slate-100', 'bg-indigo-600');
                 toggleBtn.classList.replace('text-slate-700', 'text-white');
                 toggleBtn.classList.replace('border-slate-300', 'border-indigo-500');
-                icon.className = 'fa-solid fa-lock-open mr-1';
-                text.textContent = '관리자 모드 ON';
+                icon.className = 'fa-solid fa-lock-open text-sm';
 
                 if (addVesselBtn) addVesselBtn.classList.remove('hidden');
                 if (resolveBtn) resolveBtn.classList.remove('hidden');
@@ -984,8 +1020,7 @@
                 toggleBtn.classList.replace('bg-indigo-600', 'bg-slate-100');
                 toggleBtn.classList.replace('text-white', 'text-slate-700');
                 toggleBtn.classList.replace('border-indigo-500', 'border-slate-300');
-                icon.className = 'fa-solid fa-lock mr-1';
-                text.textContent = '관리자 모드 OFF';
+                icon.className = 'fa-solid fa-lock text-sm';
 
                 if (addVesselBtn) addVesselBtn.classList.add('hidden');
                 if (resolveBtn) resolveBtn.classList.add('hidden');
@@ -1276,7 +1311,7 @@
                     }
                 }
 
-                const isToday = (curDateStr === TODAY_STR) ? 'bg-violet-50 border-l-2 border-violet-600 border-r border-slate-200 text-violet-700 font-black shadow-inner' : '';
+                const isToday = (curDateStr === TODAY_STR) ? 'border-r border-slate-200 text-violet-700 font-black' : '';
 
                 const mm = String(d.getMonth() + 1).padStart(2, '0');
                 const dd = String(d.getDate()).padStart(2, '0');
@@ -1299,6 +1334,15 @@
             container.innerHTML = '';
 
             const startTimeline = START_DATE.getTime();
+
+            const parseShortDate = (dateStr) => {
+                if (!dateStr) return '';
+                const parts = dateStr.split('-');
+                if (parts.length < 3) return dateStr;
+                const m = parseInt(parts[1], 10);
+                const d = parseInt(parts[2], 10);
+                return `${m}-${d}`;
+            };
 
             // 검색어 및 정렬 기준 값 읽기
             const searchInput = document.getElementById('vessel-search-input');
@@ -1494,15 +1538,15 @@
                     let bgClass = '';
                     if (isHoliday || isWeekend) bgClass = 'weekend-bg-highlight opacity-40';
 
-                    const isToday = (curDateStr === TODAY_STR) ? 'bg-violet-500/5 border-l-2 border-violet-600 border-r border-slate-100' : 'border-r border-slate-100';
+                    const isToday = 'border-r border-slate-100';
 
-                    cellsHtml += `<div class="h-36 ${bgClass} ${isToday} border-b border-slate-100"></div>`;
+                    cellsHtml += `<div class="h-28 ${bgClass} ${isToday} border-b border-slate-100"></div>`;
                 });
 
                 const getLeftPos = (dateStr) => {
                     const diffTime = new Date(dateStr).getTime() - startTimeline;
                     const diffDays = diffTime / (1000 * 60 * 60 * 24);
-                    return (diffDays * colWidth) + 26;
+                    return (diffDays * colWidth) + (colWidth / 2);
                 };
 
                 const renderGroupTrack = (group, topPx, colorScheme) => {
@@ -1579,45 +1623,46 @@
                 container.innerHTML += `
                     <div class="gantt-365-layout items-center hover:bg-slate-50/80 transition relative">
                         
-                        <!-- 1열 틀고정 패널 (호선 요약 정보 + 수정 제어 - w-[280px] 균등 2단 분할 레이아웃) -->
-                        <div class="sticky-col-left h-36 w-[280px] min-w-[280px] bg-white border-r-2 border-slate-300 flex flex-col divide-y divide-slate-100 p-2.5 justify-between">
-                            <!-- 1. 상단 트랙 영역 (쌍A - 높이 64px) -->
-                            <div class="flex flex-col justify-center h-[64px] pb-1.5">
-                                <!-- 호선 넘버 (큰 사이즈 bold) & Panel 배지 -->
+                        <!-- 1열 틀고정 패널 (호선 요약 정보 + 수정 제어 - w-[238px] 균등 2단 분할 레이아웃) -->
+                        <div class="sticky-col-left h-28 w-[238px] min-w-[238px] bg-white border-r-2 border-slate-300 flex flex-col divide-y divide-slate-100 p-2 justify-between">
+                            <!-- 1. 상단 트랙 영역 (쌍A - 높이 50px) -->
+                            <div class="flex flex-col justify-center h-[50px] pb-1">
+                                <!-- 호선 넘버 (큰 사이즈 bold) -->
                                 <div class="flex items-center justify-between">
-                                    <span class="font-black text-sm text-slate-900 tracking-tight truncate max-w-[170px]" title="${proj.vessel_id}">${proj.vessel_id}</span>
-                                    <span class="text-[9px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-1.5 py-0.5 rounded-lg font-black shrink-0">${proj.panel}</span>
+                                    <span class="font-extrabold text-[15px] text-slate-900 tracking-tight truncate max-w-[210px]" title="${proj.vessel_id}">${proj.vessel_id} (${proj.panel})</span>
                                 </div>
                                 <!-- 쌍A 정보 및 지연 배지 -->
                                 <div class="flex items-center justify-between mt-1.5 text-[11px] font-bold text-slate-600">
                                     <div class="flex items-center space-x-1">
-                                        <span class="text-slate-800 text-[10px]">(3/4TK)</span>
-                                        <span class="text-[8px] ${scheme.A.badge} px-1 py-0.5 rounded font-black border shrink-0">4T:${proj.vendor_4 || proj.vendor_A || '한국'}</span>
-                                        <span class="text-[8px] ${scheme.A.badge} px-1 py-0.5 rounded font-black border shrink-0">3T:${proj.vendor_3 || proj.vendor_A || '한국'}</span>
-                                        <span class="${scheme.A.date} font-black">PT:${proj.pt_date_A.substring(5)}</span>
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-gradient-to-b from-slate-400 to-slate-500 text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border border-slate-400 shrink-0">4</span>
+                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${proj.vendor_4 || proj.vendor_A || '한국'}</span>
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-gradient-to-b from-slate-400 to-slate-500 text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border border-slate-400 shrink-0">3</span>
+                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${proj.vendor_3 || proj.vendor_A || '한국'}</span>
+                                        <span class="text-slate-500 font-extrabold text-[11px]">(${parseShortDate(proj.pt_date_A)})</span>
+                                        ${proj.dates && proj.dates.warningA 
+                                            ? '<span class="text-rose-600 text-[9px] font-black px-1.5 py-0.2 rounded border border-rose-200 bg-rose-50 animate-pulse shrink-0">지연</span>' 
+                                            : ''}
                                     </div>
-                                    ${proj.dates && proj.dates.warningA 
-                                        ? '<span class="bg-rose-50 text-rose-600 text-[8px] font-black px-1.5 py-0.5 rounded border border-rose-200 animate-pulse">지연</span>' 
-                                        : '<span class="bg-emerald-50 text-emerald-700 text-[8px] font-black px-1.5 py-0.5 rounded border border-emerald-200">정상</span>'}
                                 </div>
                             </div>
-
-                            <!-- 2. 하단 트랙 영역 (쌍B & 관리자 제어 - 높이 64px) -->
-                            <div class="flex flex-col justify-center h-[64px] pt-1.5">
+ 
+                            <!-- 2. 하단 트랙 영역 (쌍B & 관리자 제어 - 높이 50px) -->
+                            <div class="flex flex-col justify-center h-[50px] pt-1">
                                 <!-- 쌍B 정보 및 지연 배지 -->
                                 <div class="flex items-center justify-between text-[11px] font-bold text-slate-600">
                                     <div class="flex items-center space-x-1">
-                                        <span class="text-slate-800 text-[10px]">(1/2TK)</span>
-                                        <span class="text-[8px] ${scheme.B.badge} px-1 py-0.5 rounded font-black border shrink-0">2T:${proj.vendor_2 || proj.vendor_B || '한국'}</span>
-                                        <span class="text-[8px] ${scheme.B.badge} px-1 py-0.5 rounded font-black border shrink-0">1T:${proj.vendor_1 || proj.vendor_B || '한국'}</span>
-                                        <span class="${scheme.B.date} font-black">PT:${proj.pt_date_B.substring(5)}</span>
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-gradient-to-b from-slate-400 to-slate-500 text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border border-slate-400 shrink-0">2</span>
+                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${proj.vendor_2 || proj.vendor_B || '한국'}</span>
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-gradient-to-b from-slate-400 to-slate-500 text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border border-slate-400 shrink-0">1</span>
+                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${proj.vendor_1 || proj.vendor_B || '한국'}</span>
+                                        <span class="text-slate-500 font-extrabold text-[11px]">(${parseShortDate(proj.pt_date_B)})</span>
+                                        ${proj.dates && proj.dates.warningB 
+                                            ? '<span class="text-rose-600 text-[9px] font-black px-1.5 py-0.2 rounded border border-rose-200 bg-rose-50 animate-pulse shrink-0">지연</span>' 
+                                            : ''}
                                     </div>
-                                    ${proj.dates && proj.dates.warningB 
-                                        ? '<span class="bg-rose-50 text-rose-600 text-[8px] font-black px-1.5 py-0.5 rounded border border-rose-200 animate-pulse">지연</span>' 
-                                        : '<span class="bg-emerald-50 text-emerald-700 text-[8px] font-black px-1.5 py-0.5 rounded border border-emerald-200">정상</span>'}
                                 </div>
                                 <!-- 하단 관리자 제어 버튼 및 통합 수동검토 뱃지 -->
-                                <div class="flex items-center justify-between mt-1.5 pt-1 border-t border-slate-100/50">
+                                <div class="flex items-center justify-between mt-1 pt-0.5 border-t border-slate-100/50">
                                     <div class="flex items-center space-x-1.5">
                                         ${editButtonsHtml}
                                     </div>
@@ -1630,18 +1675,33 @@
                         ${cellsHtml}
 
                         <!-- 📌 오버레이 공정선 및 마일스톤 도형 기호 뭉치 (절대 좌표화 적용) -->
-                        <div class="absolute inset-0 pointer-events-none z-10" style="left: 280px; width: ${DAY_COUNT * colWidth}px;">
+                        <div class="absolute inset-0 pointer-events-none z-10" style="left: 238px; width: ${DAY_COUNT * colWidth}px;">
                             
-                            <!-- Group A Timeline (Y축 상단 - 36px 센터링) -->
-                            ${proj.dates ? renderGroupTrack(proj.dates.groupA, 36, scheme.A) : ''}
+                            <!-- Group A Timeline (Y축 상단 - 28px 센터링) -->
+                            ${proj.dates ? renderGroupTrack(proj.dates.groupA, 28, scheme.A) : ''}
 
-                            <!-- Group B Timeline (Y축 하단 - 108px 센터링) -->
-                            ${proj.dates ? renderGroupTrack(proj.dates.groupB, 108, scheme.B) : ''}
+                            <!-- Group B Timeline (Y축 하단 - 84px 센터링) -->
+                            ${proj.dates ? renderGroupTrack(proj.dates.groupB, 84, scheme.B) : ''}
 
                         </div>
                     </div>
                 `;
             });
+
+            // 오늘 세로 가이드라인 동적 업데이트
+            updateTodayGuideline();
+        }
+
+        // 오늘 날짜 세로 가이드라인 동적 위치 보정 (점선 센터 배치 보정)
+        function updateTodayGuideline() {
+            const guideline = document.getElementById('today-guideline');
+            if (!guideline) return;
+            const start = START_DATE.getTime();
+            const today = TODAY_DATE.getTime();
+            const diffDays = Math.round((today - start) / (1000 * 60 * 60 * 24));
+            const centerOffset = 16 + 238 + (diffDays * colWidth) + (colWidth / 2);
+            guideline.style.left = `${centerOffset}px`;
+            guideline.style.width = '0px';
         }
 
         // 오늘 위치로 가로 스크롤 강제 이동
@@ -1651,13 +1711,31 @@
             const today = TODAY_DATE.getTime();
             
             const diffDays = (today - start) / (1000 * 60 * 60 * 24);
-            const targetLeft = (diffDays * colWidth) - (container.clientWidth / 2) + 280;
+            const targetLeft = (diffDays * colWidth) - (container.clientWidth / 2) + 238;
             
             container.scrollTo({
                 left: Math.max(0, targetLeft),
                 behavior: 'smooth'
             });
             showToast("현재 오늘 날짜 위치로 스케줄 보드가 정렬되었습니다!");
+        }
+
+        // 특정 월로 가로 스크롤 점프 이동 (화면 중앙 정렬 보정)
+        function scrollToMonth(monthIndex) {
+            const container = document.getElementById('timeline-scroll-container');
+            if (!container) return;
+            
+            const targetDate = new Date(CURRENT_YEAR, monthIndex, 1);
+            const start = START_DATE.getTime();
+            
+            const diffDays = (targetDate.getTime() - start) / (1000 * 60 * 60 * 24);
+            const targetLeft = (diffDays * colWidth);
+            
+            container.scrollTo({
+                left: Math.max(0, targetLeft),
+                behavior: 'smooth'
+            });
+            showToast(`${monthIndex + 1}월 일정 위치로 스케줄 보드가 정렬되었습니다!`);
         }
 
         function updateTimelineScale(sliderVal) {
@@ -1675,7 +1753,7 @@
             document.documentElement.style.setProperty('--col-width', `${colWidth}px`);
 
             // 컨테이너 총 가로 폭 갱신
-            const containerWidth = (DAY_COUNT * colWidth) + 280 + 32;
+            const containerWidth = (DAY_COUNT * colWidth) + 238 + 32;
             document.getElementById('timeline-inner-container').style.width = `${containerWidth}px`;
 
             // 배율 텍스트 값 표시 갱신 (월 단위 픽셀 폭 = 하루 폭 * 30일)
@@ -1684,7 +1762,7 @@
             // 가로 스크롤 중심값 보정 (줌인/아웃 시 화면 중심의 날짜를 고정 유지)
             const scrollLeft = container.scrollLeft;
             const clientWidth = container.clientWidth;
-            const centerTimelineOffset = scrollLeft + (clientWidth - 280) / 2;
+            const centerTimelineOffset = scrollLeft + (clientWidth - 238) / 2;
             const centerRatio = centerTimelineOffset / (DAY_COUNT * oldColWidth);
 
             // 타임라인 트랙 재렌더링
@@ -1692,7 +1770,7 @@
 
             // 계산된 비율에 따라 스크롤 바 위치 복원
             const newCenterTimelineOffset = centerRatio * (DAY_COUNT * colWidth);
-            container.scrollLeft = newCenterTimelineOffset - (clientWidth - 280) / 2;
+            container.scrollLeft = newCenterTimelineOffset - (clientWidth - 238) / 2;
         }
 
         // 호선명 검색 및 정렬 이벤트 핸들러
@@ -1881,6 +1959,82 @@
             projects = projects.filter(p => p.id !== id);
             analyzeAndRender();
             showToast("호선 스케쥴이 삭제되었습니다.");
+        }
+
+        // 📥 데이터 파일 내보내기 (JSON 파일 다운로드)
+        function exportDataToFile() {
+            const data = {
+                projects: projects,
+                announcements: announcements
+            };
+            const jsonString = JSON.stringify(data, null, 4);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const date = String(today.getDate()).padStart(2, '0');
+            const dateStr = `${year}${month}${date}`;
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `DomeCover_Backup_${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("💾 백업 데이터 파일(.json)이 다운로드되었습니다.");
+        }
+
+        // 📤 데이터 파일 가져오기 (JSON 파일 업로드 및 검증 후 적용)
+        function triggerImportFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    try {
+                        const parsed = JSON.parse(evt.target.result);
+                        if (parsed && (parsed.projects || Array.isArray(parsed))) {
+                            let newProjects = [];
+                            let newAnnouncements = [];
+                            
+                            if (parsed.projects) {
+                                newProjects = parsed.projects;
+                                if (parsed.announcements) {
+                                    newAnnouncements = parsed.announcements;
+                                }
+                            } else if (Array.isArray(parsed)) {
+                                newProjects = parsed;
+                            }
+
+                            projects = newProjects;
+                            ensureProjectDataIntegrity(projects);
+                            localStorage.setItem('dome_dock_tank_projects_v90', JSON.stringify(projects));
+                            
+                            if (newAnnouncements.length > 0) {
+                                announcements = newAnnouncements;
+                                localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
+                            }
+                            
+                            showToast("✅ 백업 파일 데이터가 정상적으로 불러와졌습니다! 화면을 갱신합니다.");
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            alert("유효하지 않은 백업 데이터 규격입니다. 파일 내용을 다시 확인하세요.");
+                        }
+                    } catch(err) {
+                        alert("JSON 파일 파싱 실패: " + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
         }
 
         // 클립보드 복사
