@@ -34,10 +34,10 @@
             background: #475569;
         }
 
-        /* 365일 캘린더 그리드 비율 선언 (호선 정보 컬럼: 280px, 일별 셀 폭: 52px) */
+        /* 365일 캘린더 그리드 비율 선언 (호선 정보 컬럼: 280px, 일별 셀 폭: var(--col-width, 52px)) */
         .gantt-365-layout {
             display: grid;
-            grid-template-columns: 280px repeat(365, 52px);
+            grid-template-columns: 280px repeat(365, var(--col-width, 52px));
         }
 
         /* 호선 정보 틀고정 */
@@ -127,7 +127,7 @@
         <!-- 실시간 오늘 날짜 연동 인디케이터, 관리자 모드 토글, 외부 웹앱 호출 -->
         <div class="flex flex-wrap items-center gap-3">
             <!-- 🌐 외부 웹앱 호출 독립 버튼 2개 -->
-            <button onclick="openExternalApp('https://homepidol.github.io/EDU2')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl px-3 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
+            <button onclick="openExternalApp('edu_schedule.html')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl px-3 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
                 <i class="fa-solid fa-arrow-up-right-from-square text-indigo-600"></i>
                 <span>직무교육일정</span>
             </button>
@@ -204,6 +204,40 @@
                     <span class="flex items-center space-x-1"><span class="marker-diamond bg-emerald-600"></span><span>PT (탑재)</span></span>
                     <span class="px-2 py-0.5 rounded weekend-bg-highlight text-rose-700 border border-rose-300">일요일 및 공휴일</span>
                     <span class="text-[9px] text-rose-500 font-extrabold flex items-center gap-0.5"><span class="w-2.5 h-2.5 bg-white border border-rose-300 rounded flex items-center justify-center text-[7px] text-rose-600">공</span><span>공휴일 겹침</span></span>
+                </div>
+            </div>
+
+            <!-- 🎛️ Gantt Control Toolbar (검색, 배율조절, 정렬) -->
+            <div class="px-5 py-3 border-b border-slate-200 bg-white flex flex-col md:flex-row md:items-center md:justify-between gap-4 shrink-0">
+                <!-- Left: Search Box -->
+                <div class="flex items-center space-x-2">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input type="text" id="vessel-search-input" oninput="handleSearchAndSort()" placeholder="호선명 또는 시리즈 검색..." class="w-60 bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 font-bold placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all shadow-sm">
+                    </div>
+                </div>
+
+                <!-- Middle: Timeline Scale Slider -->
+                <div class="flex items-center justify-center">
+                    <div class="bg-slate-50 border border-slate-300 rounded-full px-4 py-1.5 flex items-center space-x-3 text-xs font-black shadow-sm">
+                        <span class="text-slate-700"><i class="fa-solid fa-magnifying-glass-plus text-indigo-500 mr-1.5"></i>타임라인 배율:</span>
+                        <input type="range" id="timeline-scale-slider" min="20" max="120" step="1" value="52" oninput="updateTimelineScale(this.value)" class="w-32 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        <span id="timeline-scale-val" class="text-blue-600 font-black whitespace-nowrap">1560px</span>
+                    </div>
+                </div>
+
+                <!-- Right: Sort Criteria -->
+                <div class="flex items-center space-x-2 text-xs font-black text-slate-700">
+                    <span>정렬 기준:</span>
+                    <select id="sort-criteria-select" onchange="handleSearchAndSort()" class="bg-white border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 focus:outline-none focus:border-indigo-500 transition-all shadow-sm">
+                        <option value="pt_date_asc">PT 목표일 순 (오름차순)</option>
+                        <option value="pt_date_desc">PT 목표일 순 (내림차순)</option>
+                        <option value="vessel_id_asc">호선명 순</option>
+                        <option value="panel_asc">시리즈 순</option>
+                        <option value="status_desc">수동검토/지연 우선</option>
+                    </select>
                 </div>
             </div>
 
@@ -616,6 +650,9 @@
         // 관리자 모드 활성화 상태 여부 (최초 시작은 항상 false)
         let isAdminMode = false;
 
+        // 1일 셀당 가로 폭 (기본값 52px, 30~120px 가변)
+        let colWidth = 52;
+
         // 매년 동일하게 반복되는 공휴일(월-일) 목록 기반으로 현재 연도 공휴일 리스트 동적 빌드
         const HOLIDAYS_BASE = [
             '%-01-01', // 신정
@@ -846,17 +883,34 @@
 
         // 초기 어플리케이션 가동
         function init() {
+            // 저장된 colWidth 로드 및 CSS 변수 바인딩
+            const savedColWidth = localStorage.getItem('timeline_col_width');
+            if (savedColWidth) {
+                colWidth = parseInt(savedColWidth, 10);
+            }
+            document.documentElement.style.setProperty('--col-width', `${colWidth}px`);
+
+            // 슬라이더 초기 UI 세팅
+            const slider = document.getElementById('timeline-scale-slider');
+            if (slider) {
+                slider.value = colWidth;
+            }
+            const sliderValDisp = document.getElementById('timeline-scale-val');
+            if (sliderValDisp) {
+                sliderValDisp.innerText = `${colWidth * 30}px`;
+            }
+
             // 윤년 여부에 따라 그리드 템플릿과 가로 폭을 동적으로 주입
             const dynamicStyle = document.createElement('style');
             dynamicStyle.innerHTML = `
                 .gantt-365-layout {
                     display: grid;
-                    grid-template-columns: 280px repeat(${DAY_COUNT}, 52px);
+                    grid-template-columns: 280px repeat(${DAY_COUNT}, var(--col-width, 52px));
                 }
             `;
             document.head.appendChild(dynamicStyle);
 
-            const containerWidth = (DAY_COUNT * 52) + 280 + 32;
+            const containerWidth = (DAY_COUNT * colWidth) + 280 + 32;
             document.getElementById('timeline-inner-container').style.width = `${containerWidth}px`;
 
             document.getElementById('live-today-text').innerText = `오늘: ${TODAY_STR}`;
@@ -1245,9 +1299,47 @@
             container.innerHTML = '';
 
             const startTimeline = START_DATE.getTime();
-            const colWidth = 52; // 1일 셀당 폭
 
-            const sortedProjects = [...projects].sort((a, b) => new Date(a.pt_date_A) - new Date(b.pt_date_A));
+            // 검색어 및 정렬 기준 값 읽기
+            const searchInput = document.getElementById('vessel-search-input');
+            const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            const sortCriteriaSelect = document.getElementById('sort-criteria-select');
+            const sortCriteria = sortCriteriaSelect ? sortCriteriaSelect.value : 'pt_date_asc';
+
+            let filteredProjects = projects.filter(proj => {
+                const vesselId = (proj.vessel_id || '').toLowerCase();
+                const panel = (proj.panel || '').toLowerCase();
+                return vesselId.includes(searchQuery) || panel.includes(searchQuery);
+            });
+
+            filteredProjects.sort((a, b) => {
+                if (sortCriteria === 'pt_date_asc') {
+                    return new Date(a.pt_date_A) - new Date(b.pt_date_A);
+                } else if (sortCriteria === 'pt_date_desc') {
+                    return new Date(b.pt_date_A) - new Date(a.pt_date_A);
+                } else if (sortCriteria === 'vessel_id_asc') {
+                    return (a.vessel_id || '').localeCompare(b.vessel_id || '');
+                } else if (sortCriteria === 'panel_asc') {
+                    return (a.panel || '').localeCompare(b.panel || '');
+                } else if (sortCriteria === 'status_desc') {
+                    const warnA = a.dates && (a.dates.warningA || a.dates.warningB) ? 1 : 0;
+                    const warnB = b.dates && (b.dates.warningA || b.dates.warningB) ? 1 : 0;
+                    return warnB - warnA || new Date(a.pt_date_A) - new Date(b.pt_date_A);
+                }
+                return 0;
+            });
+
+            const sortedProjects = filteredProjects;
+
+            if (sortedProjects.length === 0) {
+                container.innerHTML = `
+                    <div class="text-slate-400 font-black py-16 text-center text-sm w-full absolute left-0 right-0">
+                        <i class="fa-solid fa-magnifying-glass text-2xl mb-2 text-slate-300 block"></i>
+                        일치하는 호선 정보가 없습니다.
+                    </div>
+                `;
+                return;
+            }
 
             const CHART_COLOR_SCHEMES = [
                 // Palette 1: Indigo & Purple (보라/남색 계열)
@@ -1367,7 +1459,7 @@
             ];
 
             sortedProjects.forEach((proj, idx) => {
-                const scheme = CHART_COLOR_SCHEMES[idx % CHART_COLOR_SCHEMES.length];
+                const scheme = CHART_COLOR_SCHEMES[proj.id % CHART_COLOR_SCHEMES.length];
                 let cellsHtml = '';
 
                 // 경고 뱃지 처리
@@ -1538,7 +1630,7 @@
                         ${cellsHtml}
 
                         <!-- 📌 오버레이 공정선 및 마일스톤 도형 기호 뭉치 (절대 좌표화 적용) -->
-                        <div class="absolute inset-0 pointer-events-none z-10" style="left: 280px; width: 18980px;">
+                        <div class="absolute inset-0 pointer-events-none z-10" style="left: 280px; width: ${DAY_COUNT * colWidth}px;">
                             
                             <!-- Group A Timeline (Y축 상단 - 36px 센터링) -->
                             ${proj.dates ? renderGroupTrack(proj.dates.groupA, 36, scheme.A) : ''}
@@ -1559,13 +1651,53 @@
             const today = TODAY_DATE.getTime();
             
             const diffDays = (today - start) / (1000 * 60 * 60 * 24);
-            const targetLeft = (diffDays * 52) - (container.clientWidth / 2) + 280;
+            const targetLeft = (diffDays * colWidth) - (container.clientWidth / 2) + 280;
             
             container.scrollTo({
                 left: Math.max(0, targetLeft),
                 behavior: 'smooth'
             });
             showToast("현재 오늘 날짜 위치로 스케줄 보드가 정렬되었습니다!");
+        }
+
+        function updateTimelineScale(sliderVal) {
+            const container = document.getElementById('timeline-scroll-container');
+            if (!container) return;
+
+            const oldColWidth = colWidth;
+            // sliderVal 자체가 colWidth (하루 단위 픽셀 폭, 20~120px)
+            colWidth = parseInt(sliderVal, 10);
+
+            // 로컬스토리지에 저장
+            localStorage.setItem('timeline_col_width', colWidth);
+
+            // CSS 변수 갱신
+            document.documentElement.style.setProperty('--col-width', `${colWidth}px`);
+
+            // 컨테이너 총 가로 폭 갱신
+            const containerWidth = (DAY_COUNT * colWidth) + 280 + 32;
+            document.getElementById('timeline-inner-container').style.width = `${containerWidth}px`;
+
+            // 배율 텍스트 값 표시 갱신 (월 단위 픽셀 폭 = 하루 폭 * 30일)
+            document.getElementById('timeline-scale-val').innerText = `${colWidth * 30}px`;
+
+            // 가로 스크롤 중심값 보정 (줌인/아웃 시 화면 중심의 날짜를 고정 유지)
+            const scrollLeft = container.scrollLeft;
+            const clientWidth = container.clientWidth;
+            const centerTimelineOffset = scrollLeft + (clientWidth - 280) / 2;
+            const centerRatio = centerTimelineOffset / (DAY_COUNT * oldColWidth);
+
+            // 타임라인 트랙 재렌더링
+            renderTimelineTracks();
+
+            // 계산된 비율에 따라 스크롤 바 위치 복원
+            const newCenterTimelineOffset = centerRatio * (DAY_COUNT * colWidth);
+            container.scrollLeft = newCenterTimelineOffset - (clientWidth - 280) / 2;
+        }
+
+        // 호선명 검색 및 정렬 이벤트 핸들러
+        function handleSearchAndSort() {
+            renderTimelineTracks();
         }
 
         // 폼 모달 관리
@@ -1756,7 +1888,7 @@
             const area = document.getElementById('data-json-area');
             area.select();
             document.execCommand('copy');
-            showToast("일정 JSON이 클립보드에 복사되었습니다!");
+            showToast("📋 드라이도크 일정 JSON이 클립보드에 복사되었습니다!");
         }
 
         // 외부 수작업 데이터 로드 및 통합 백업 적용
