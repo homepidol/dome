@@ -47,6 +47,9 @@
             z-index: 25;
             background-color: #ffffff;
             border-right: 3px solid #cbd5e1;
+            will-change: transform, position;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
         .sticky-header-top-left {
             position: sticky;
@@ -56,6 +59,9 @@
             background-color: #f1f5f9;
             border-right: 3px solid #cbd5e1;
             border-bottom: 3px solid #94a3b8;
+            will-change: transform, position;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
         .sticky-header-top {
             position: sticky;
@@ -63,6 +69,9 @@
             z-index: 35;
             background-color: #f8fafc;
             border-bottom: 3px solid #94a3b8;
+            will-change: transform, position;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
 
         /* 🚨 선명한 토/일 주말 및 국가 공휴일 하이라이트 배경 */
@@ -101,7 +110,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen antialiased selection:bg-slate-200">
+<body class="bg-slate-100 text-slate-800 h-screen overflow-hidden flex flex-col antialiased selection:bg-slate-200">
 
     <!-- 통합 상단 관제 헤더 -->
     <header class="border-b-2 border-slate-300 bg-white sticky top-0 z-50 px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -168,12 +177,12 @@
         </div>
     </section>
 
-    <main class="p-6 space-y-6 max-w-[1800px] mx-auto">
+    <main class="flex-1 overflow-hidden flex flex-col px-6 py-4 space-y-6 max-w-[1800px] mx-auto w-full">
 
         <!-- 📊 마일스톤 연간 간트 차트 (365일 관제 격자판 - 탱크 그룹 이중 트랙 지원) -->
-        <section class="bg-white border-2 border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+        <section class="flex-1 flex flex-col min-h-0 bg-white border-2 border-slate-200 rounded-3xl overflow-hidden shadow-sm">
             
-            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-4">
+            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-4 shrink-0">
                 <div class="flex items-center space-x-3 text-sm font-black text-slate-900">
                     <span class="p-1.5 bg-slate-200 rounded-lg text-slate-800"><i class="fa-solid fa-chart-gantt"></i></span>
                     <span>L/Dome Cover 공정관리</span>
@@ -199,11 +208,11 @@
             </div>
 
             <!-- 1년 스케쥴 관제 영역 (가로 약 19,260px 초대형 프레임) -->
-            <div id="timeline-scroll-container" class="overflow-x-auto overflow-y-auto max-h-[640px]">
+            <div id="timeline-scroll-container" class="flex-1 overflow-auto">
                 <div id="timeline-inner-container" class="px-4 pb-4 pt-0">
                     
                     <!-- 1. 연간 달력 월/일자 헤더 영역 -->
-                    <div id="calendar-header-365" class="gantt-365-layout text-center text-xs font-bold text-slate-500 sticky top-0 z-30 bg-slate-100">
+                    <div id="calendar-header-365" class="gantt-365-layout text-center text-xs font-bold text-slate-500 sticky top-0 z-40 bg-slate-100">
                         <!-- JS동적 추가 -->
                     </div>
 
@@ -280,8 +289,8 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-blue-600 mb-1 font-extrabold">3/4TK 담당업체</label>
-                        <select id="add-form-vendor-a" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                        <label class="block text-blue-600 mb-1 font-extrabold">4TK 담당업체</label>
+                        <select id="add-form-vendor-4" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none">
                             <option value="한국">한국</option>
                             <option value="화진">화진</option>
                             <option value="송안">송안</option>
@@ -290,8 +299,30 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-teal-600 mb-1 font-extrabold">1/2TK 담당업체</label>
-                        <select id="add-form-vendor-b" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                        <label class="block text-blue-600 mb-1 font-extrabold">3TK 담당업체</label>
+                        <select id="add-form-vendor-3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                            <option value="한국">한국</option>
+                            <option value="화진">화진</option>
+                            <option value="송안">송안</option>
+                            <option value="구일">구일</option>
+                            <option value="오셔나즈">오셔나즈</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-teal-600 mb-1 font-extrabold">2TK 담당업체</label>
+                        <select id="add-form-vendor-2" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                            <option value="한국">한국</option>
+                            <option value="화진">화진</option>
+                            <option value="송안">송안</option>
+                            <option value="구일">구일</option>
+                            <option value="오셔나즈">오셔나즈</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-teal-600 mb-1 font-extrabold">1TK 담당업체</label>
+                        <select id="add-form-vendor-1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none">
                             <option value="한국">한국</option>
                             <option value="화진">화진</option>
                             <option value="송안">송안</option>
@@ -362,8 +393,8 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-blue-600 mb-1 font-extrabold">3/4TK 담당업체</label>
-                        <select id="edit-form-vendor-a" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                        <label class="block text-blue-600 mb-1 font-extrabold">4TK 담당업체</label>
+                        <select id="edit-form-vendor-4" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none">
                             <option value="한국">한국</option>
                             <option value="화진">화진</option>
                             <option value="송안">송안</option>
@@ -372,8 +403,30 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-teal-600 mb-1 font-extrabold">1/2TK 담당업체</label>
-                        <select id="edit-form-vendor-b" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                        <label class="block text-blue-600 mb-1 font-extrabold">3TK 담당업체</label>
+                        <select id="edit-form-vendor-3" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                            <option value="한국">한국</option>
+                            <option value="화진">화진</option>
+                            <option value="송안">송안</option>
+                            <option value="구일">구일</option>
+                            <option value="오셔나즈">오셔나즈</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-teal-600 mb-1 font-extrabold">2TK 담당업체</label>
+                        <select id="edit-form-vendor-2" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none">
+                            <option value="한국">한국</option>
+                            <option value="화진">화진</option>
+                            <option value="송안">송안</option>
+                            <option value="구일">구일</option>
+                            <option value="오셔나즈">오셔나즈</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-teal-600 mb-1 font-extrabold">1TK 담당업체</label>
+                        <select id="edit-form-vendor-1" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none">
                             <option value="한국">한국</option>
                             <option value="화진">화진</option>
                             <option value="송안">송안</option>
@@ -582,16 +635,16 @@
 
         // 기본 10개 호선 데이터
         const DEFAULT_10_PROJECTS = [
-            { id: 1, vessel_id: "CMES (2687)", panel: "MOL", pt_date_A: "2026-06-05", pt_date_B: "2026-06-19", vendor_A: "한국", vendor_B: "화진" },
-            { id: 2, vessel_id: "CMES (2696) 3,4", panel: "MOL", pt_date_A: "2026-06-25", pt_date_B: "2026-07-09", vendor_A: "송안", vendor_B: "구일" },
-            { id: 3, vessel_id: "ENI (2686) 1/2(P)", panel: "DSME", pt_date_A: "2026-05-15", pt_date_B: "2026-05-29", vendor_A: "오셔나즈", vendor_B: "한국" },
-            { id: 4, vessel_id: "ENI (2686) 1/2(S)", panel: "DSME", pt_date_A: "2026-06-12", pt_date_B: "2026-06-26", vendor_A: "화진", vendor_B: "송안" },
-            { id: 5, vessel_id: "ENI (2686) 3/4(P)", panel: "SHI", pt_date_A: "2026-08-21", pt_date_B: "2026-09-04", vendor_A: "구일", vendor_B: "오셔나즈" },
-            { id: 6, vessel_id: "HULL (3101) Bulkhead", panel: "MOL", pt_date_A: "2026-05-22", pt_date_B: "2026-06-05", vendor_A: "한국", vendor_B: "송안" },
-            { id: 7, vessel_id: "HULL (3102) Bow Side", panel: "HHI", pt_date_A: "2026-04-17", pt_date_B: "2026-05-01", vendor_A: "화진", vendor_B: "구일" },
-            { id: 8, vessel_id: "HULL (3103) Stern", panel: "HHI", pt_date_A: "2026-07-10", pt_date_B: "2026-07-24", vendor_A: "오셔나즈", vendor_B: "한국" },
-            { id: 9, vessel_id: "HULL (3104) Upper Deck", panel: "SHI", pt_date_A: "2026-08-07", pt_date_B: "2026-08-14", vendor_A: "송안", vendor_B: "화진" },
-            { id: 10, vessel_id: "HULL (3105) Double Bottom", panel: "MOL", pt_date_A: "2026-09-18", pt_date_B: "2026-10-02", vendor_A: "구일", vendor_B: "오셔나즈" }
+            { id: 1, vessel_id: "CMES (2687)", panel: "MOL", pt_date_A: "2026-06-05", pt_date_B: "2026-06-19", vendor_4: "한국", vendor_3: "화진", vendor_2: "송안", vendor_1: "구일" },
+            { id: 2, vessel_id: "CMES (2696) 3,4", panel: "MOL", pt_date_A: "2026-06-25", pt_date_B: "2026-07-09", vendor_4: "송안", vendor_3: "구일", vendor_2: "오셔나즈", vendor_1: "한국" },
+            { id: 3, vessel_id: "ENI (2686) 1/2(P)", panel: "DSME", pt_date_A: "2026-05-15", pt_date_B: "2026-05-29", vendor_4: "오셔나즈", vendor_3: "한국", vendor_2: "화진", vendor_1: "송안" },
+            { id: 4, vessel_id: "ENI (2686) 1/2(S)", panel: "DSME", pt_date_A: "2026-06-12", pt_date_B: "2026-06-26", vendor_4: "화진", vendor_3: "송안", vendor_2: "구일", vendor_1: "오셔나즈" },
+            { id: 5, vessel_id: "ENI (2686) 3/4(P)", panel: "SHI", pt_date_A: "2026-08-21", pt_date_B: "2026-09-04", vendor_4: "구일", vendor_3: "오셔나즈", vendor_2: "한국", vendor_1: "화진" },
+            { id: 6, vessel_id: "HULL (3101) Bulkhead", panel: "MOL", pt_date_A: "2026-05-22", pt_date_B: "2026-06-05", vendor_4: "한국", vendor_3: "송안", vendor_2: "화진", vendor_1: "구일" },
+            { id: 7, vessel_id: "HULL (3102) Bow Side", panel: "HHI", pt_date_A: "2026-04-17", pt_date_B: "2026-05-01", vendor_4: "화진", vendor_3: "구일", vendor_2: "오셔나즈", vendor_1: "한국" },
+            { id: 8, vessel_id: "HULL (3103) Stern", panel: "HHI", pt_date_A: "2026-07-10", pt_date_B: "2026-07-24", vendor_4: "오셔나즈", vendor_3: "한국", vendor_2: "송안", vendor_1: "화진" },
+            { id: 9, vessel_id: "HULL (3104) Upper Deck", panel: "SHI", pt_date_A: "2026-08-07", pt_date_B: "2026-08-14", vendor_4: "송안", vendor_3: "화진", vendor_2: "구일", vendor_1: "오셔나즈" },
+            { id: 10, vessel_id: "HULL (3105) Double Bottom", panel: "MOL", pt_date_A: "2026-09-18", pt_date_B: "2026-10-02", vendor_4: "구일", vendor_3: "오셔나즈", vendor_2: "한국", vendor_1: "송안" }
         ];
 
         // 기본 공지사항 리스트
@@ -670,6 +723,12 @@
         // 프로젝트 데이터 무결성 검증 및 기본값 보정 헬퍼
         function ensureProjectDataIntegrity(projs) {
             projs.forEach(p => {
+                // 4T, 3T, 2T, 1T 개별 탱크 담당업체 필드 마이그레이션 및 방어 코딩
+                if (!p.vendor_4) p.vendor_4 = p.vendor_A || '한국';
+                if (!p.vendor_3) p.vendor_3 = p.vendor_A || '한국';
+                if (!p.vendor_2) p.vendor_2 = p.vendor_B || '한국';
+                if (!p.vendor_1) p.vendor_1 = p.vendor_B || '한국';
+
                 if (!p.vendor_A) p.vendor_A = '한국';
                 if (!p.vendor_B) p.vendor_B = '한국';
                 if (p.is_manual_A === undefined) p.is_manual_A = false;
@@ -782,7 +841,7 @@
             const end1 = new Date(s1.inspect.end);
             const start2 = new Date(s2.ld.start);
             const end2 = new Date(s2.inspect.end);
-            return start1 <= end2 && start2 <= end1;
+            return start1 < end2 && start2 < end1;
         }
 
         // 초기 어플리케이션 가동
@@ -1058,8 +1117,8 @@
                             // 수동 고정된 스케줄은 강제로 역산하여 당기지 않고 충돌을 그대로 둠
                             resolved = true;
                         } else {
-                            // 자동 스케줄인 경우에만 충돌하는 블럭의 입고일 직전 영업일로 검사를 당김
-                            let newInspectEnd = getValidDayBefore(conflict.schedule.ld.start, "검사");
+                            // 자동 스케줄인 경우에만 충돌하는 블럭의 입고일(혹은 이전 영업일)로 검사를 당김
+                            let newInspectEnd = getValidDayOrPrev(conflict.schedule.ld.start, "검사");
                             pair.schedule = calculateReverseScheduleWithInspectEnd(newInspectEnd, pair.pt_target);
                             safety++;
                         }
@@ -1321,10 +1380,11 @@
                                 </div>
                                 <!-- 쌍A 정보 및 지연 배지 -->
                                 <div class="flex items-center justify-between mt-1.5 text-[11px] font-bold text-slate-600">
-                                    <div class="flex items-center space-x-1.5">
-                                        <span class="text-slate-800">(3/4TK)</span>
-                                        <span class="text-[9px] bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-black border border-blue-200 shrink-0">${proj.vendor_A || '한국'}</span>
-                                        <span class="text-blue-600 font-black">PT: ${proj.pt_date_A.substring(5)}</span>
+                                    <div class="flex items-center space-x-1">
+                                        <span class="text-slate-800 text-[10px]">(3/4TK)</span>
+                                        <span class="text-[8px] bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-black border border-blue-200 shrink-0">4T:${proj.vendor_4 || proj.vendor_A || '한국'}</span>
+                                        <span class="text-[8px] bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-black border border-blue-200 shrink-0">3T:${proj.vendor_3 || proj.vendor_A || '한국'}</span>
+                                        <span class="text-blue-600 font-black">PT:${proj.pt_date_A.substring(5)}</span>
                                     </div>
                                     ${proj.dates && proj.dates.warningA 
                                         ? '<span class="bg-rose-50 text-rose-600 text-[8px] font-black px-1.5 py-0.5 rounded border border-rose-200 animate-pulse">지연</span>' 
@@ -1336,10 +1396,11 @@
                             <div class="flex flex-col justify-center h-[64px] pt-1.5">
                                 <!-- 쌍B 정보 및 지연 배지 -->
                                 <div class="flex items-center justify-between text-[11px] font-bold text-slate-600">
-                                    <div class="flex items-center space-x-1.5">
-                                        <span class="text-slate-800">(1/2TK)</span>
-                                        <span class="text-[9px] bg-teal-50 text-teal-700 px-1 py-0.5 rounded font-black border border-teal-200 shrink-0">${proj.vendor_B || '한국'}</span>
-                                        <span class="text-teal-600 font-black">PT: ${proj.pt_date_B.substring(5)}</span>
+                                    <div class="flex items-center space-x-1">
+                                        <span class="text-slate-800 text-[10px]">(1/2TK)</span>
+                                        <span class="text-[8px] bg-teal-50 text-teal-700 px-1 py-0.5 rounded font-black border border-teal-200 shrink-0">2T:${proj.vendor_2 || proj.vendor_B || '한국'}</span>
+                                        <span class="text-[8px] bg-teal-50 text-teal-700 px-1 py-0.5 rounded font-black border border-teal-200 shrink-0">1T:${proj.vendor_1 || proj.vendor_B || '한국'}</span>
+                                        <span class="text-teal-600 font-black">PT:${proj.pt_date_B.substring(5)}</span>
                                     </div>
                                     ${proj.dates && proj.dates.warningB 
                                         ? '<span class="bg-rose-50 text-rose-600 text-[8px] font-black px-1.5 py-0.5 rounded border border-rose-200 animate-pulse">지연</span>' 
@@ -1433,8 +1494,10 @@
             const panel = document.getElementById('add-form-block').value;
             const ptA = document.getElementById('add-form-pt-a').value;
             const ptB = document.getElementById('add-form-pt-b').value;
-            const vendorA = document.getElementById('add-form-vendor-a').value;
-            const vendorB = document.getElementById('add-form-vendor-b').value;
+            const vendor4 = document.getElementById('add-form-vendor-4').value;
+            const vendor3 = document.getElementById('add-form-vendor-3').value;
+            const vendor2 = document.getElementById('add-form-vendor-2').value;
+            const vendor1 = document.getElementById('add-form-vendor-1').value;
 
             const newProj = {
                 id: Date.now(),
@@ -1442,8 +1505,12 @@
                 panel: panel,
                 pt_date_A: ptA,
                 pt_date_B: ptB,
-                vendor_A: vendorA,
-                vendor_B: vendorB,
+                vendor_4: vendor4,
+                vendor_3: vendor3,
+                vendor_2: vendor2,
+                vendor_1: vendor1,
+                vendor_A: vendor4, // 하위 호환
+                vendor_B: vendor2, // 하위 호환
                 dates: {}
             };
 
@@ -1477,8 +1544,10 @@
             document.getElementById('edit-form-block').value = proj.panel;
             
             // 담당업체 로드
-            document.getElementById('edit-form-vendor-a').value = proj.vendor_A || '한국';
-            document.getElementById('edit-form-vendor-b').value = proj.vendor_B || '한국';
+            document.getElementById('edit-form-vendor-4').value = proj.vendor_4 || proj.vendor_A || '한국';
+            document.getElementById('edit-form-vendor-3').value = proj.vendor_3 || proj.vendor_A || '한국';
+            document.getElementById('edit-form-vendor-2').value = proj.vendor_2 || proj.vendor_B || '한국';
+            document.getElementById('edit-form-vendor-1').value = proj.vendor_1 || proj.vendor_B || '한국';
 
             // 수동 체크박스 상태 로드
             document.getElementById('edit-form-manual-a').checked = proj.is_manual_A || false;
@@ -1521,8 +1590,12 @@
 
             proj.vessel_id = document.getElementById('edit-form-hull').value;
             proj.panel = document.getElementById('edit-form-block').value;
-            proj.vendor_A = document.getElementById('edit-form-vendor-a').value;
-            proj.vendor_B = document.getElementById('edit-form-vendor-b').value;
+            proj.vendor_4 = document.getElementById('edit-form-vendor-4').value;
+            proj.vendor_3 = document.getElementById('edit-form-vendor-3').value;
+            proj.vendor_2 = document.getElementById('edit-form-vendor-2').value;
+            proj.vendor_1 = document.getElementById('edit-form-vendor-1').value;
+            proj.vendor_A = proj.vendor_4; // 하위 호환
+            proj.vendor_B = proj.vendor_2; // 하위 호환
 
             // 3/4TK 저장 처리
             const isManualA = document.getElementById('edit-form-manual-a').checked;
