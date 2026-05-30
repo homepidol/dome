@@ -1,1 +1,41 @@
-
+{
+  "projects": [
+    { "id": 1, "vessel_id": "CMES (2687)", "panel": "MOL", "pt_date_A": "2026-06-05", "pt_date_B": "2026-06-19", "vendor_4": "한국", "vendor_3": "화진", "vendor_2": "송안", "vendor_1": "구일" },
+    { "id": 2, "vessel_id": "CMES (2696) 3,4", "panel": "MOL", "pt_date_A": "2026-06-25", "pt_date_B": "2026-07-09", "vendor_4": "송안", "vendor_3": "구일", "vendor_2": "오셔나즈", "vendor_1": "한국" },
+    { "id": 3, "vessel_id": "ENI (2686) 1/2(P)", "panel": "DSME", "pt_date_A": "2026-05-15", "pt_date_B": "2026-05-29", "vendor_4": "오셔나즈", "vendor_3": "한국", "vendor_2": "화진", "vendor_1": "송안" },
+    { "id": 4, "vessel_id": "ENI (2686) 1/2(S)", "panel": "DSME", "pt_date_A": "2026-06-12", "pt_date_B": "2026-06-26", "vendor_4": "화진", "vendor_3": "송안", "vendor_2": "구일", "vendor_1": "오셔나즈" },
+    { "id": 5, "vessel_id": "ENI (2686) 3/4(P)", "panel": "SHI", "pt_date_A": "2026-08-21", "pt_date_B": "2026-09-04", "vendor_4": "구일", "vendor_3": "오셔나즈", "vendor_2": "한국", "vendor_1": "화진" },
+    { "id": 6, "vessel_id": "HULL (3101) Bulkhead", "panel": "MOL", "pt_date_A": "2026-05-22", "pt_date_B": "2026-06-05", "vendor_4": "한국", "vendor_3": "송안", "vendor_2": "화진", "vendor_1": "구일" },
+    { "id": 7, "vessel_id": "HULL (3102) Bow Side", "panel": "HHI", "pt_date_A": "2026-04-17", "pt_date_B": "2026-05-01", "vendor_4": "화진", "vendor_3": "구일", "vendor_2": "오셔나즈", "vendor_1": "한국" },
+    { "id": 8, "vessel_id": "HULL (3103) Stern", "panel": "HHI", "pt_date_A": "2026-07-10", "pt_date_B": "2026-07-24", "vendor_4": "오셔나즈", "vendor_3": "한국", "vendor_2": "송안", "vendor_1": "화진" },
+    { "id": 9, "vessel_id": "HULL (3104) Upper Deck", "panel": "SHI", "pt_date_A": "2026-08-07", "pt_date_B": "2026-08-14", "vendor_4": "송안", "vendor_3": "화진", "vendor_2": "구일", "vendor_1": "오셔나즈" },
+    { "id": 10, "vessel_id": "HULL (3105) Double Bottom", "panel": "MOL", "pt_date_A": "2026-09-18", "pt_date_B": "2026-10-02", "vendor_4": "구일", "vendor_3": "오셔나즈", "vendor_2": "한국", "vendor_1": "송안" }
+  ],
+  "announcements": [
+    { "id": 1, "date": "2026-05-28", "content": "성공적으로 가포되었습니다." },
+    { "id": 2, "date": "2026-05-28", "content": "5월 24일~25일 부처님오신날 및 대체공휴일 지정으로 작업장 가동이 제외되었습니다. 일정 조정 시 참고하시기 바랍니다." }
+  ],
+  "memos": [
+    {
+      "id": 1,
+      "content": "돔커버 공정 관리 주요 안내:\n- 일요일 및 공휴일은 모든 공정이 진행 불가합니다.\n- 검사는 평일(월~금)에만 진행되며, 토요일인 경우 전날 금요일로 일정이 당겨집니다.",
+      "date": "2026-05-30 13:00",
+      "color": "blue",
+      "pinned": true
+    },
+    {
+      "id": 2,
+      "content": "수동 검토 필요 호선:\n- HULL (3102) Bow Side 및 ENI (2686) 3/4(P) 호선의 일정이 겹치는지 관리자 모드에서 자동 정렬을 실행하여 확인해 보세요.",
+      "date": "2026-05-30 13:15",
+      "color": "amber",
+      "pinned": false
+    },
+    {
+      "id": 3,
+      "content": "생산 모니터링 웹앱 링크 연동 완료.\n직무교육일정 및 생산 모니터링 메뉴가 정상 연동되었습니다.",
+      "date": "2026-05-30 13:20",
+      "color": "emerald",
+      "pinned": false
+    }
+  ]
+}
