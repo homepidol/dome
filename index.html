@@ -124,6 +124,343 @@
         #memo-list::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 0, 0, 0.3);
         }
+
+        /* DESIGN.md Apple-inspired operational theme */
+        :root {
+            --apple-blue: #0066cc;
+            --apple-blue-hover: #0071e3;
+            --apple-blue-soft: #e8f2ff;
+            --apple-ink: #1d1d1f;
+            --apple-muted: #6e6e73;
+            --apple-muted-2: #86868b;
+            --apple-canvas: #ffffff;
+            --apple-bg: #f5f5f7;
+            --apple-surface: #fbfbfd;
+            --apple-line: #d2d2d7;
+            --apple-hairline: #e5e5ea;
+            --apple-danger: #d70015;
+            --apple-success: #248a3d;
+            --apple-warning: #b25000;
+        }
+
+        * {
+            letter-spacing: 0 !important;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+            background: var(--apple-bg) !important;
+            color: var(--apple-ink) !important;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.88) !important;
+            border-color: var(--apple-hairline) !important;
+            box-shadow: none !important;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        header .bg-slate-800 {
+            background: var(--apple-ink) !important;
+            border-radius: 12px !important;
+            box-shadow: none !important;
+        }
+
+        header h1,
+        h2,
+        h3 {
+            color: var(--apple-ink) !important;
+            font-weight: 700 !important;
+        }
+
+        header p,
+        .text-slate-500,
+        .text-slate-600,
+        .text-slate-700 {
+            color: var(--apple-muted) !important;
+        }
+
+        button,
+        select,
+        input,
+        textarea {
+            font-family: inherit !important;
+        }
+
+        button {
+            border-radius: 9999px !important;
+            box-shadow: none !important;
+            transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms ease !important;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        input,
+        select,
+        textarea {
+            background: var(--apple-surface) !important;
+            border-color: var(--apple-line) !important;
+            color: var(--apple-ink) !important;
+            border-radius: 12px !important;
+            box-shadow: none !important;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            background: var(--apple-canvas) !important;
+            border-color: var(--apple-blue) !important;
+            outline: 2px solid rgba(0, 102, 204, 0.14) !important;
+            outline-offset: 1px;
+        }
+
+        main > section,
+        main section,
+        #memo-board-section,
+        #external-data-section {
+            background: var(--apple-canvas) !important;
+            border-color: var(--apple-hairline) !important;
+            border-radius: 18px !important;
+            box-shadow: none !important;
+        }
+
+        main > div > section {
+            border-radius: 18px !important;
+        }
+
+        body > section {
+            background: rgba(245, 245, 247, 0.9) !important;
+            border-color: var(--apple-hairline) !important;
+            box-shadow: none !important;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        #announcement-board-list > div,
+        #memo-list > div {
+            border-radius: 12px !important;
+            box-shadow: none !important;
+        }
+
+        #announcement-board-list .bg-amber-100,
+        #announcement-board-list .bg-amber-50 {
+            background: var(--apple-canvas) !important;
+            border-color: var(--apple-line) !important;
+        }
+
+        #announcement-board-list .text-amber-950,
+        #announcement-board-list .text-amber-900,
+        #announcement-board-list .text-amber-600 {
+            color: var(--apple-ink) !important;
+        }
+
+        #announcement-board-list .bg-amber-200,
+        #announcement-board-list .bg-amber-100 {
+            background: var(--apple-blue-soft) !important;
+            color: var(--apple-blue) !important;
+            border-color: rgba(0, 102, 204, 0.24) !important;
+        }
+
+        .bg-slate-50,
+        .bg-slate-100,
+        .bg-slate-200 {
+            background-color: var(--apple-surface) !important;
+        }
+
+        .border-slate-100,
+        .border-slate-150,
+        .border-slate-200,
+        .border-slate-300 {
+            border-color: var(--apple-hairline) !important;
+        }
+
+        .text-indigo-600,
+        .text-blue-600,
+        .text-violet-700,
+        .text-indigo-700,
+        .text-blue-700 {
+            color: var(--apple-blue) !important;
+        }
+
+        .bg-indigo-600,
+        .bg-blue-600,
+        .bg-slate-900,
+        .bg-slate-800,
+        #admin-add-vessel-btn,
+        #admin-resolve-btn,
+        #admin-add-announce-btn {
+            background-color: var(--apple-blue) !important;
+            color: #ffffff !important;
+            border-color: var(--apple-blue) !important;
+        }
+
+        .bg-indigo-600:hover,
+        .bg-blue-600:hover,
+        .bg-slate-900:hover,
+        .bg-slate-800:hover,
+        #admin-add-vessel-btn:hover,
+        #admin-resolve-btn:hover,
+        #admin-add-announce-btn:hover {
+            background-color: var(--apple-blue-hover) !important;
+            border-color: var(--apple-blue-hover) !important;
+        }
+
+        .bg-indigo-50,
+        .bg-blue-50,
+        .bg-cyan-50,
+        .bg-sky-50,
+        .bg-violet-50 {
+            background-color: var(--apple-blue-soft) !important;
+        }
+
+        .border-indigo-200,
+        .border-blue-200,
+        .border-cyan-200,
+        .border-sky-200,
+        .border-violet-200 {
+            border-color: rgba(0, 102, 204, 0.22) !important;
+        }
+
+        .bg-emerald-50,
+        .bg-teal-50 {
+            background-color: #ecf8f1 !important;
+        }
+
+        .text-emerald-600,
+        .text-emerald-700,
+        .text-teal-600,
+        .text-teal-700 {
+            color: var(--apple-success) !important;
+        }
+
+        .bg-amber-50,
+        .bg-amber-100 {
+            background-color: #fff8ed !important;
+        }
+
+        .text-amber-500,
+        .text-amber-600,
+        .text-amber-700,
+        .text-amber-800,
+        .text-amber-900,
+        .text-amber-950 {
+            color: var(--apple-warning) !important;
+        }
+
+        .bg-rose-50,
+        .bg-red-100 {
+            background-color: #fff1f2 !important;
+        }
+
+        .text-rose-500,
+        .text-rose-600,
+        .text-red-600 {
+            color: var(--apple-danger) !important;
+        }
+
+        .weekend-bg-highlight {
+            background-color: #fff1f2 !important;
+        }
+
+        .holiday-text-highlight {
+            color: var(--apple-danger) !important;
+            font-weight: 700 !important;
+        }
+
+        .sticky-col-left,
+        .sticky-header-top-left,
+        .sticky-header-top {
+            background-color: rgba(251, 251, 253, 0.96) !important;
+            border-color: var(--apple-line) !important;
+            box-shadow: none !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        #timeline-scroll-container {
+            background: var(--apple-canvas) !important;
+        }
+
+        #calendar-header-365 {
+            background: var(--apple-bg) !important;
+        }
+
+        #gantt-rows-365 > div:hover {
+            background: rgba(0, 102, 204, 0.035) !important;
+        }
+
+        .timeline-bar-line {
+            height: 3px !important;
+            border-radius: 9999px !important;
+            opacity: 0.9;
+        }
+
+        .marker-dot,
+        .marker-diamond {
+            width: 10px !important;
+            height: 10px !important;
+            border: 2px solid #ffffff !important;
+            box-shadow: 0 0 0 1px rgba(29, 29, 31, 0.12) !important;
+        }
+
+        #today-guideline {
+            border-color: var(--apple-danger) !important;
+        }
+
+        #toast-notif {
+            background: rgba(29, 29, 31, 0.92) !important;
+            border-radius: 14px !important;
+            box-shadow: none !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .fixed.inset-0 > .bg-white {
+            border-radius: 22px !important;
+            border-color: var(--apple-line) !important;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18) !important;
+        }
+
+        #admin-mode-toggle {
+            border-radius: 50% !important;
+        }
+
+        #admin-mode-toggle.bg-slate-100 {
+            background: var(--apple-canvas) !important;
+            color: var(--apple-ink) !important;
+            border-color: var(--apple-line) !important;
+        }
+
+        #admin-mode-toggle.bg-indigo-600 {
+            background: var(--apple-blue) !important;
+            color: #ffffff !important;
+            border-color: var(--apple-blue) !important;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+
+            main {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+
+            body > section {
+                top: 92px !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen overflow-hidden flex flex-col antialiased selection:bg-slate-200">
@@ -334,8 +671,7 @@
                 <form id="memo-add-form" onsubmit="handleAddMemo(event)" class="space-y-2">
                     <div class="relative bg-slate-50 border border-slate-200 rounded-2xl focus-within:border-indigo-400 focus-within:bg-white transition-all p-2.5 shadow-inner">
                         <textarea id="memo-input" rows="2" placeholder="메모를 작성하고 등록하세요..." 
-                            class="w-full bg-transparent resize-none outline-none border-none text-[12px] text-slate-800 placeholder-slate-400 font-medium leading-relaxed"
-                            onkeydown="handleMemoInputKeydown(event)"></textarea>
+                            class="w-full bg-transparent resize-none outline-none border-none text-[15px] text-slate-800 placeholder-slate-400 font-medium leading-relaxed"></textarea>
                         <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-200">
                             <!-- Memo category/color selector -->
                             <div class="flex space-x-1.5" id="memo-color-selector">
@@ -344,7 +680,7 @@
                                 <button type="button" onclick="selectMemoColor('amber')" class="w-4 h-4 rounded-full bg-amber-400 border border-white/10 transition" id="color-btn-amber" title="노랑 (검토)"></button>
                                 <button type="button" onclick="selectMemoColor('rose')" class="w-4 h-4 rounded-full bg-rose-400 border border-white/10 transition" id="color-btn-rose" title="빨강 (긴급)"></button>
                             </div>
-                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-xl text-[11px] font-black transition-all shadow-sm flex items-center gap-1 active:scale-95">
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-xl text-[13px] font-black transition-all shadow-sm flex items-center gap-1 active:scale-95">
                                 <i class="fa-solid fa-plus text-[9px]"></i>등록
                             </button>
                         </div>
@@ -358,7 +694,7 @@
                     <i class="fa-solid fa-magnifying-glass text-[10px]"></i>
                 </span>
                 <input type="text" id="memo-search" oninput="renderMemos()" placeholder="메모 검색..." 
-                    class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-400 transition font-bold shadow-inner">
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-[13px] text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-400 transition font-bold shadow-inner">
             </div>
 
             <!-- Scrollable Memos List -->
@@ -699,7 +1035,38 @@
         </div>
     </div>
 
-    <!-- 4. 공정 기준 안내 모달 (작은 버튼 연동 팝업) -->
+    <!-- 4. 관리자 모드 암호 입력 모달 -->
+    <div id="admin-password-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border-2 border-slate-300 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="closeAdminPasswordModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-5">
+                <div class="mx-auto mb-3 w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                    <i class="fa-solid fa-lock text-xl"></i>
+                </div>
+                <h3 class="text-sm font-black text-slate-900">관리자 인증</h3>
+                <p class="text-xs text-slate-500 mt-1">일정 편집 및 백업 제어 권한을 확인합니다.</p>
+            </div>
+            
+            <form id="admin-password-form" onsubmit="handleAdminPasswordSubmit(event)" class="space-y-4 text-xs text-slate-700">
+                <div>
+                    <label class="block text-slate-700 mb-1 font-extrabold">관리자 비밀번호</label>
+                    <input type="password" id="admin-password-input" inputmode="numeric" autocomplete="current-password" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 font-black tracking-[0.25em] text-center focus:outline-none focus:bg-white focus:border-indigo-500 transition">
+                </div>
+                <div class="flex space-x-2 pt-1">
+                    <button type="button" onclick="closeAdminPasswordModal()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2.5 rounded-xl font-black transition">
+                        취소
+                    </button>
+                    <button type="submit" class="w-1/2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl font-black transition">
+                        확인
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. 공정 기준 안내 모달 (작은 버튼 연동 팝업) -->
     <div id="rules-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white border-2 border-slate-300 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeRulesModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 transition">
@@ -764,6 +1131,7 @@
 
         // 관리자 모드 활성화 상태 여부 (최초 시작은 항상 false)
         let isAdminMode = false;
+        const DEFAULT_ADMIN_PASSWORD = '0990';
 
         // 1일 셀당 가로 폭 (기본값 44px, 30~120px 가변)
         let colWidth = 44;
@@ -874,7 +1242,28 @@
 
         // 프로젝트 데이터 무결성 검증 및 기본값 보정 헬퍼
         function ensureProjectDataIntegrity(projs) {
-            projs.forEach(p => {
+            projs.forEach((p, index) => {
+                if (!p || typeof p !== 'object') {
+                    projs[index] = {};
+                    p = projs[index];
+                }
+
+                const numericId = Number(p.id);
+                if (!Number.isFinite(numericId)) {
+                    p.id = Date.now() + index;
+                } else {
+                    p.id = numericId;
+                }
+
+                const isValidDateString = (value) => {
+                    return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(new Date(value).getTime());
+                };
+
+                if (!p.vessel_id) p.vessel_id = `미지정 호선 ${index + 1}`;
+                if (!p.panel) p.panel = '미지정';
+                if (!isValidDateString(p.pt_date_A)) p.pt_date_A = TODAY_STR;
+                if (!isValidDateString(p.pt_date_B)) p.pt_date_B = TODAY_STR;
+
                 // 4T, 3T, 2T, 1T 개별 탱크 담당업체 필드 마이그레이션 및 방어 코딩
                 if (!p.vendor_4) p.vendor_4 = p.vendor_A || '한국';
                 if (!p.vendor_3) p.vendor_3 = p.vendor_A || '한국';
@@ -885,6 +1274,21 @@
                 if (!p.vendor_B) p.vendor_B = '한국';
                 if (p.is_manual_A === undefined) p.is_manual_A = false;
                 if (p.is_manual_B === undefined) p.is_manual_B = false;
+
+                const hasCompleteScheduleDates = (dates) => {
+                    const required = ['ld', 'clean', 'work_start', 'work_end', 'inspect', 'pt'];
+                    return dates && required.every(key => Boolean(dates[key]));
+                };
+
+                if (p.is_manual_A && !hasCompleteScheduleDates(p.dates_A)) {
+                    p.is_manual_A = false;
+                    p.dates_A = null;
+                }
+
+                if (p.is_manual_B && !hasCompleteScheduleDates(p.dates_B)) {
+                    p.is_manual_B = false;
+                    p.dates_B = null;
+                }
                 
                 if (!p.dates_A) {
                     const schedA = calculateReverseSchedule(p.pt_date_A);
@@ -908,6 +1312,32 @@
                         pt: schedB.pt.start
                     };
                 }
+            });
+        }
+
+        function safeParseStoredJSON(key, fallbackValue) {
+            const raw = localStorage.getItem(key);
+            if (!raw) return JSON.parse(JSON.stringify(fallbackValue));
+
+            try {
+                const parsed = JSON.parse(raw);
+                return parsed ?? JSON.parse(JSON.stringify(fallbackValue));
+            } catch (err) {
+                console.warn(`저장 데이터 복구: ${key}`, err);
+                localStorage.removeItem(key);
+                return JSON.parse(JSON.stringify(fallbackValue));
+            }
+        }
+
+        function normalizeAnnouncements(list) {
+            return (Array.isArray(list) ? list : []).map((rawItem, index) => {
+                const item = rawItem || {};
+                const numericId = Number(item.id);
+                return {
+                    id: Number.isFinite(numericId) ? numericId : Date.now() + index,
+                    date: item.date || formatDate(new Date()),
+                    content: item.content || ''
+                };
             });
         }
 
@@ -1031,10 +1461,8 @@
             document.getElementById('live-today-text').innerText = TODAY_STR;
             isAdminMode = false; // 시작 화면 관리자 모드 OFF 고정
 
-            const savedProjects = localStorage.getItem('dome_dock_tank_projects_v90');
-            if (savedProjects) {
-                projects = JSON.parse(savedProjects);
-            } else {
+            projects = safeParseStoredJSON('dome_dock_tank_projects_v90', DEFAULT_10_PROJECTS);
+            if (!Array.isArray(projects)) {
                 projects = JSON.parse(JSON.stringify(DEFAULT_10_PROJECTS));
             }
 
@@ -1054,12 +1482,8 @@
             ensureProjectDataIntegrity(projects);
 
             // 공지사항 로드
-            const savedAnnouncements = localStorage.getItem('dome_dock_announcements');
-            if (savedAnnouncements) {
-                announcements = JSON.parse(savedAnnouncements);
-            } else {
-                localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
-            }
+            announcements = normalizeAnnouncements(safeParseStoredJSON('dome_dock_announcements', announcements));
+            localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
 
             // 메모판 로드 및 초기화
             loadMemos();
@@ -1084,8 +1508,51 @@
 
         // 🔒 관리자 모드 토글
         function toggleAdminMode() {
-            isAdminMode = !isAdminMode;
-            updateAdminModeUI(false);
+            if (isAdminMode) {
+                isAdminMode = false;
+                updateAdminModeUI(false);
+                return;
+            }
+
+            openAdminPasswordModal();
+        }
+
+        function getAdminPassword() {
+            return localStorage.getItem('dome_dock_admin_password') || DEFAULT_ADMIN_PASSWORD;
+        }
+
+        function openAdminPasswordModal() {
+            const modal = document.getElementById('admin-password-modal');
+            const input = document.getElementById('admin-password-input');
+            const form = document.getElementById('admin-password-form');
+            if (!modal || !input || !form) return;
+
+            form.reset();
+            modal.classList.remove('hidden');
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function closeAdminPasswordModal() {
+            const modal = document.getElementById('admin-password-modal');
+            const form = document.getElementById('admin-password-form');
+            if (form) form.reset();
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function handleAdminPasswordSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('admin-password-input');
+            if (!input) return;
+
+            if (input.value === getAdminPassword()) {
+                isAdminMode = true;
+                closeAdminPasswordModal();
+                updateAdminModeUI(false);
+            } else {
+                input.value = '';
+                input.focus();
+                showToast("⚠️ 관리자 비밀번호가 올바르지 않습니다.");
+            }
         }
 
         function updateAdminModeUI(isInitial = false) {
@@ -1139,6 +1606,8 @@
             
             container.innerHTML = sortedAnnouncements.map((a, index) => {
                 const isLatest = (index === 0);
+                const safeDate = escapeHTML(a.date);
+                const safeContent = escapeHTML(a.content);
                 // 최신 공지는 더 화려한 하이라이트 처리 + 스크롤 시 상단 고정(sticky)
                 const bgClass = isLatest 
                     ? 'bg-amber-100 border-2 border-amber-300 shadow-md sticky top-0 z-10' 
@@ -1157,8 +1626,8 @@
 
                 return `
                     <div class="flex items-center space-x-4 ${bgClass} py-3.5 px-5 rounded-2xl w-full">
-                        <span class="${badgeClass} text-xs md:text-sm font-black px-3.5 py-1 rounded-xl shrink-0 tracking-wider shadow-sm">${a.date}</span>
-                        <span class="${textClass} leading-relaxed text-sm md:text-base flex-1 tracking-wide" style="line-height: 1.5; letter-spacing: 0.04em;">${a.content}</span>
+                        <span class="${badgeClass} text-xs md:text-sm font-black px-3.5 py-1 rounded-xl shrink-0 tracking-wider shadow-sm">${safeDate}</span>
+                        <span class="${textClass} leading-relaxed text-sm md:text-base flex-1 tracking-wide" style="line-height: 1.5;">${safeContent}</span>
                         ${isLatest ? '<span class="text-amber-600 font-black text-xs md:text-sm animate-pulse shrink-0 mr-1"><i class="fa-solid fa-thumbtack mr-0.5"></i>최신공지</span>' : ''}
                         ${deleteBtnHtml}
                     </div>
@@ -1482,124 +1951,57 @@
             }
 
             const CHART_COLOR_SCHEMES = [
-                // Palette 1: Indigo & Purple (보라/남색 계열)
                 {
-                    A: {
-                        gradient: 'linear-gradient(to right, #6366f1, #8b5cf6)',
-                        badge: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-                        text: 'text-indigo-700',
-                        border: 'border-indigo-200',
-                        marker: 'bg-indigo-600',
-                        date: 'text-indigo-600'
-                    },
-                    B: {
-                        gradient: 'linear-gradient(to right, #8b5cf6, #d946ef)',
-                        badge: 'bg-purple-50 text-purple-700 border-purple-200',
-                        text: 'text-purple-700',
-                        border: 'border-purple-200',
-                        marker: 'bg-purple-600',
-                        date: 'text-purple-600'
-                    }
+                    A: { label: "3/4TK", color: "#0066cc", color2: "#2997ff", soft: "#e8f2ff", border: "#8ec5ff" },
+                    B: { label: "1/2TK", color: "#b25000", color2: "#ff9f0a", soft: "#fff4e5", border: "#ffd08a" }
                 },
-                // Palette 2: Emerald & Teal (초록/민트 계열)
                 {
-                    A: {
-                        gradient: 'linear-gradient(to right, #10b981, #14b8a6)',
-                        badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                        text: 'text-emerald-700',
-                        border: 'border-emerald-200',
-                        marker: 'bg-emerald-600',
-                        date: 'text-emerald-600'
-                    },
-                    B: {
-                        gradient: 'linear-gradient(to right, #14b8a6, #06b6d4)',
-                        badge: 'bg-teal-50 text-teal-700 border-teal-200',
-                        text: 'text-teal-700',
-                        border: 'border-teal-200',
-                        marker: 'bg-teal-600',
-                        date: 'text-teal-600'
-                    }
+                    A: { label: "3/4TK", color: "#248a3d", color2: "#30d158", soft: "#ecf8f1", border: "#9ee6b3" },
+                    B: { label: "1/2TK", color: "#7d2ae8", color2: "#bf5af2", soft: "#f4eaff", border: "#d8b4fe" }
                 },
-                // Palette 3: Rose & Amber (붉은/오렌지 계열)
                 {
-                    A: {
-                        gradient: 'linear-gradient(to right, #f43f5e, #f97316)',
-                        badge: 'bg-rose-50 text-rose-700 border-rose-200',
-                        text: 'text-rose-700',
-                        border: 'border-rose-200',
-                        marker: 'bg-rose-600',
-                        date: 'text-rose-600'
-                    },
-                    B: {
-                        gradient: 'linear-gradient(to right, #f97316, #eab308)',
-                        badge: 'bg-amber-50 text-amber-700 border-amber-200',
-                        text: 'text-amber-700',
-                        border: 'border-amber-200',
-                        marker: 'bg-amber-600',
-                        date: 'text-amber-600'
-                    }
+                    A: { label: "3/4TK", color: "#d70015", color2: "#ff453a", soft: "#fff1f2", border: "#ffb3ba" },
+                    B: { label: "1/2TK", color: "#007c78", color2: "#00c7be", soft: "#e6fbfa", border: "#8ee8e5" }
                 },
-                // Palette 4: Cyan & Sky (청량한 하늘색 계열)
                 {
-                    A: {
-                        gradient: 'linear-gradient(to right, #06b6d4, #0ea5e9)',
-                        badge: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-                        text: 'text-cyan-700',
-                        border: 'border-cyan-200',
-                        marker: 'bg-cyan-600',
-                        date: 'text-cyan-600'
-                    },
-                    B: {
-                        gradient: 'linear-gradient(to right, #0ea5e9, #3b82f6)',
-                        badge: 'bg-sky-50 text-sky-700 border-sky-200',
-                        text: 'text-sky-700',
-                        border: 'border-sky-200',
-                        marker: 'bg-sky-600',
-                        date: 'text-sky-600'
-                    }
+                    A: { label: "3/4TK", color: "#1d1d1f", color2: "#6e6e73", soft: "#f5f5f7", border: "#c7c7cc" },
+                    B: { label: "1/2TK", color: "#9a6b00", color2: "#ffd60a", soft: "#fff9db", border: "#ffe680" }
                 },
-                // Palette 5: Fuchsia & Pink (세련된 마젠타 계열)
                 {
-                    A: {
-                        gradient: 'linear-gradient(to right, #d946ef, #ec4899)',
-                        badge: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200',
-                        text: 'text-fuchsia-700',
-                        border: 'border-fuchsia-200',
-                        marker: 'bg-fuchsia-600',
-                        date: 'text-fuchsia-600'
-                    },
-                    B: {
-                        gradient: 'linear-gradient(to right, #ec4899, #f43f5e)',
-                        badge: 'bg-pink-50 text-pink-700 border-pink-200',
-                        text: 'text-pink-700',
-                        border: 'border-pink-200',
-                        marker: 'bg-pink-600',
-                        date: 'text-pink-600'
-                    }
+                    A: { label: "3/4TK", color: "#0057d9", color2: "#5e9bff", soft: "#edf4ff", border: "#9ec3ff" },
+                    B: { label: "1/2TK", color: "#c9347a", color2: "#ff2d92", soft: "#fff0f7", border: "#ffadd2" }
                 },
-                // Palette 6: Violet & Blue (클래식 바이올렛/블루 계열)
                 {
-                    A: {
-                        gradient: 'linear-gradient(to right, #8b5cf6, #3b82f6)',
-                        badge: 'bg-violet-50 text-violet-700 border-violet-200',
-                        text: 'text-violet-700',
-                        border: 'border-violet-200',
-                        marker: 'bg-violet-600',
-                        date: 'text-violet-600'
-                    },
-                    B: {
-                        gradient: 'linear-gradient(to right, #3b82f6, #0ea5e9)',
-                        badge: 'bg-blue-50 text-blue-700 border-blue-200',
-                        text: 'text-blue-700',
-                        border: 'border-blue-200',
-                        marker: 'bg-blue-600',
-                        date: 'text-blue-600'
-                    }
+                    A: { label: "3/4TK", color: "#5856d6", color2: "#7b7aff", soft: "#f0efff", border: "#b8b7ff" },
+                    B: { label: "1/2TK", color: "#3f7a00", color2: "#a2d729", soft: "#f1fae8", border: "#c7e99b" }
+                },
+                {
+                    A: { label: "3/4TK", color: "#004f7c", color2: "#40c8e0", soft: "#e9f8fc", border: "#9bdfea" },
+                    B: { label: "1/2TK", color: "#8f3a00", color2: "#ff6b00", soft: "#fff0e5", border: "#ffbd8a" }
+                },
+                {
+                    A: { label: "3/4TK", color: "#0b6b57", color2: "#34c759", soft: "#e9f8f1", border: "#9de0bb" },
+                    B: { label: "1/2TK", color: "#8e1f5f", color2: "#ff375f", soft: "#fff0f4", border: "#ffabbc" }
                 }
-            ];
+            ].map(pair => ({
+                A: {
+                    ...pair.A,
+                    gradient: `linear-gradient(to right, ${pair.A.color}, ${pair.A.color2})`
+                },
+                B: {
+                    ...pair.B,
+                    gradient: `linear-gradient(to right, ${pair.B.color}, ${pair.B.color2})`
+                }
+            }));
 
             sortedProjects.forEach((proj, idx) => {
-                const scheme = CHART_COLOR_SCHEMES[proj.id % CHART_COLOR_SCHEMES.length];
+                const scheme = CHART_COLOR_SCHEMES[idx % CHART_COLOR_SCHEMES.length];
+                const safeVesselId = escapeHTML(proj.vessel_id || '');
+                const safePanel = escapeHTML(proj.panel || '');
+                const safeVendor4 = escapeHTML(proj.vendor_4 || proj.vendor_A || '한국');
+                const safeVendor3 = escapeHTML(proj.vendor_3 || proj.vendor_A || '한국');
+                const safeVendor2 = escapeHTML(proj.vendor_2 || proj.vendor_B || '한국');
+                const safeVendor1 = escapeHTML(proj.vendor_1 || proj.vendor_B || '한국');
                 let cellsHtml = '';
 
                 // 경고 뱃지 처리
@@ -1655,6 +2057,9 @@
 
                     const barStart = ldLeft;
                     const barWidth = ptLeft - ldLeft;
+                    const badgeStyle = `color: ${colorScheme.color}; background: ${colorScheme.soft}; border-color: ${colorScheme.border};`;
+                    const dateStyle = `color: ${colorScheme.color};`;
+                    const markerStyle = `background: ${colorScheme.color};`;
 
                     return `
                         <!-- 공정 연결 바 선 -->
@@ -1662,47 +2067,47 @@
 
                         <!-- 입고 -->
                         <div class="absolute -translate-x-1/2 pointer-events-none" style="top: ${topPx}px; left: ${ldLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
-                            <span class="absolute bottom-2.5 text-[9px] font-black ${colorScheme.text} bg-white border ${colorScheme.border} px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap">
+                            <span class="absolute bottom-2.5 text-[9px] font-black bg-white border px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap" style="${badgeStyle}">
                                 입고 ${group.ld.holiday_flag ? '<span class="text-rose-500 font-extrabold text-[8px]">공</span>' : ''}
                             </span>
-                            <span class="marker-dot ${colorScheme.marker} z-10 shrink-0"></span>
-                            <span class="absolute top-2.5 text-[9px] font-extrabold ${colorScheme.date} whitespace-nowrap">${group.ld.start.substring(5)}</span>
+                            <span class="marker-dot z-10 shrink-0" style="${markerStyle}"></span>
+                            <span class="absolute top-2.5 text-[9px] font-extrabold whitespace-nowrap" style="${dateStyle}">${group.ld.start.substring(5)}</span>
                         </div>
 
                         <!-- 크리닝 -->
                         <div class="absolute -translate-x-1/2 pointer-events-none" style="top: ${topPx}px; left: ${cleanLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
-                            <span class="absolute bottom-2.5 text-[9px] font-black ${colorScheme.text} bg-white border ${colorScheme.border} px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap">
+                            <span class="absolute bottom-2.5 text-[9px] font-black bg-white border px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap" style="${badgeStyle}">
                                 크리닝 ${group.clean.holiday_flag ? '<span class="text-rose-500 font-extrabold text-[8px]">공</span>' : ''}
                             </span>
-                            <span class="marker-dot ${colorScheme.marker} z-10 shrink-0"></span>
-                            <span class="absolute top-2.5 text-[9px] font-extrabold ${colorScheme.date} whitespace-nowrap">${group.clean.start.substring(5)}</span>
+                            <span class="marker-dot z-10 shrink-0" style="${markerStyle}"></span>
+                            <span class="absolute top-2.5 text-[9px] font-extrabold whitespace-nowrap" style="${dateStyle}">${group.clean.start.substring(5)}</span>
                         </div>
 
                         <!-- 작업시작 -->
                         <div class="absolute -translate-x-1/2 pointer-events-none" style="top: ${topPx}px; left: ${workStartLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
-                            <span class="absolute bottom-2.5 text-[9px] font-black ${colorScheme.text} bg-white border ${colorScheme.border} px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap">
+                            <span class="absolute bottom-2.5 text-[9px] font-black bg-white border px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap" style="${badgeStyle}">
                                 작업시작 ${group.work.holiday_flag ? '<span class="text-rose-500 font-extrabold text-[8px]">공</span>' : ''}
                             </span>
-                            <span class="marker-dot ${colorScheme.marker} z-10 shrink-0"></span>
-                            <span class="absolute top-2.5 text-[9px] font-extrabold ${colorScheme.date} whitespace-nowrap">${group.work.start.substring(5)}</span>
+                            <span class="marker-dot z-10 shrink-0" style="${markerStyle}"></span>
+                            <span class="absolute top-2.5 text-[9px] font-extrabold whitespace-nowrap" style="${dateStyle}">${group.work.start.substring(5)}</span>
                         </div>
 
                         <!-- 작업완료 -->
                         <div class="absolute -translate-x-1/2 pointer-events-none" style="top: ${topPx}px; left: ${workEndLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
-                            <span class="absolute bottom-2.5 text-[9px] font-black ${colorScheme.text} bg-white border ${colorScheme.border} px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap">
+                            <span class="absolute bottom-2.5 text-[9px] font-black bg-white border px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap" style="${badgeStyle}">
                                 작업완료
                             </span>
-                            <span class="marker-dot ${colorScheme.marker} z-10 shrink-0"></span>
-                            <span class="absolute top-2.5 text-[9px] font-extrabold ${colorScheme.date} whitespace-nowrap">${group.work.end.substring(5)}</span>
+                            <span class="marker-dot z-10 shrink-0" style="${markerStyle}"></span>
+                            <span class="absolute top-2.5 text-[9px] font-extrabold whitespace-nowrap" style="${dateStyle}">${group.work.end.substring(5)}</span>
                         </div>
 
                         <!-- 검사완료 -->
                         <div class="absolute -translate-x-1/2 pointer-events-none" style="top: ${topPx}px; left: ${inspectLeft}px; height: 0; width: 0; display: flex; justify-content: center; align-items: center;">
-                            <span class="absolute bottom-2.5 text-[9px] font-black ${colorScheme.text} bg-white border ${colorScheme.border} px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap">
+                            <span class="absolute bottom-2.5 text-[9px] font-black bg-white border px-1.5 py-0.2 rounded shadow-sm flex items-center gap-0.5 whitespace-nowrap" style="${badgeStyle}">
                                 검사 ${group.inspect.holiday_flag ? '<span class="text-rose-500 font-extrabold text-[8px]">공</span>' : ''}
                             </span>
-                            <span class="marker-dot ${colorScheme.marker} z-10 shrink-0"></span>
-                            <span class="absolute top-2.5 text-[9px] font-extrabold ${colorScheme.date} whitespace-nowrap">${group.inspect.start.substring(5)}</span>
+                            <span class="marker-dot z-10 shrink-0" style="${markerStyle}"></span>
+                            <span class="absolute top-2.5 text-[9px] font-extrabold whitespace-nowrap" style="${dateStyle}">${group.inspect.start.substring(5)}</span>
                         </div>
 
                         <!-- PT (탑재) -->
@@ -1725,15 +2130,15 @@
                             <div class="flex flex-col justify-center h-[50px] pb-1">
                                 <!-- 호선 넘버 (큰 사이즈 bold) -->
                                 <div class="flex items-center justify-between">
-                                    <span class="font-extrabold text-[15px] text-slate-900 tracking-tight truncate max-w-[210px]" title="${proj.vessel_id}">${proj.vessel_id} (${proj.panel})</span>
+                                    <span class="font-extrabold text-[15px] text-slate-900 tracking-tight truncate max-w-[210px]" title="${safeVesselId}">${safeVesselId} (${safePanel})</span>
                                 </div>
                                 <!-- 쌍A 정보 및 지연 배지 -->
                                 <div class="flex items-center justify-between mt-1.5 text-[11px] font-bold text-slate-600">
                                     <div class="flex items-center space-x-1">
-                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-gradient-to-b from-slate-400 to-slate-500 text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border border-slate-400 shrink-0">4</span>
-                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${proj.vendor_4 || proj.vendor_A || '한국'}</span>
-                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-gradient-to-b from-slate-400 to-slate-500 text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border border-slate-400 shrink-0">3</span>
-                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${proj.vendor_3 || proj.vendor_A || '한국'}</span>
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border shrink-0" style="background: ${scheme.A.gradient}; border-color: ${scheme.A.border};">4</span>
+                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${safeVendor4}</span>
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border shrink-0" style="background: ${scheme.A.gradient}; border-color: ${scheme.A.border};">3</span>
+                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${safeVendor3}</span>
                                         <span class="text-slate-500 font-extrabold text-[11px]">(${parseShortDate(proj.pt_date_A)})</span>
                                         ${proj.dates && proj.dates.warningA 
                                             ? '<span class="text-rose-600 text-[9px] font-black px-1.5 py-0.2 rounded border border-rose-200 bg-rose-50 animate-pulse shrink-0">지연</span>' 
@@ -1747,10 +2152,10 @@
                                 <!-- 쌍B 정보 및 지연 배지 -->
                                 <div class="flex items-center justify-between text-[11px] font-bold text-slate-600">
                                     <div class="flex items-center space-x-1">
-                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-gradient-to-b from-slate-400 to-slate-500 text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border border-slate-400 shrink-0">2</span>
-                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${proj.vendor_2 || proj.vendor_B || '한국'}</span>
-                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-gradient-to-b from-slate-400 to-slate-500 text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border border-slate-400 shrink-0">1</span>
-                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${proj.vendor_1 || proj.vendor_B || '한국'}</span>
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border shrink-0" style="background: ${scheme.B.gradient}; border-color: ${scheme.B.border};">2</span>
+                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${safeVendor2}</span>
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-md text-white text-[13px] font-black shadow-[0_1.5px_2px_rgba(0,0,0,0.3)] border shrink-0" style="background: ${scheme.B.gradient}; border-color: ${scheme.B.border};">1</span>
+                                        <span class="text-slate-800 text-[11px] font-extrabold truncate max-w-[55px]">${safeVendor1}</span>
                                         <span class="text-slate-500 font-extrabold text-[11px]">(${parseShortDate(proj.pt_date_B)})</span>
                                         ${proj.dates && proj.dates.warningB 
                                             ? '<span class="text-rose-600 text-[9px] font-black px-1.5 py-0.2 rounded border border-rose-200 bg-rose-50 animate-pulse shrink-0">지연</span>' 
@@ -1944,6 +2349,19 @@
             });
         }
 
+        function getManualScheduleInput(suffix) {
+            const schedule = {
+                ld: document.getElementById(`edit-form-ld-${suffix}`).value,
+                clean: document.getElementById(`edit-form-clean-${suffix}`).value,
+                work_start: document.getElementById(`edit-form-work-start-${suffix}`).value,
+                work_end: document.getElementById(`edit-form-work-end-${suffix}`).value,
+                inspect: document.getElementById(`edit-form-inspect-${suffix}`).value
+            };
+
+            const hasMissingDate = Object.values(schedule).some(value => !value);
+            return hasMissingDate ? null : schedule;
+        }
+
         // 수정 모달 열기
         function openEditModal(id) {
             const proj = projects.find(p => p.id === id);
@@ -2000,6 +2418,21 @@
             const proj = projects.find(p => p.id === id);
             if (!proj) return;
 
+            const isManualA = document.getElementById('edit-form-manual-a').checked;
+            const isManualB = document.getElementById('edit-form-manual-b').checked;
+            const manualScheduleA = isManualA ? getManualScheduleInput('a') : null;
+            const manualScheduleB = isManualB ? getManualScheduleInput('b') : null;
+
+            if (isManualA && !manualScheduleA) {
+                showToast("⚠️ 3/4TK 수동 고정 날짜를 모두 입력해 주세요.");
+                return;
+            }
+
+            if (isManualB && !manualScheduleB) {
+                showToast("⚠️ 1/2TK 수동 고정 날짜를 모두 입력해 주세요.");
+                return;
+            }
+
             proj.vessel_id = document.getElementById('edit-form-hull').value;
             proj.panel = document.getElementById('edit-form-block').value;
             proj.vendor_4 = document.getElementById('edit-form-vendor-4').value;
@@ -2010,17 +2443,12 @@
             proj.vendor_B = proj.vendor_2; // 하위 호환
 
             // 3/4TK 저장 처리
-            const isManualA = document.getElementById('edit-form-manual-a').checked;
             proj.is_manual_A = isManualA;
             proj.pt_date_A = document.getElementById('edit-form-pt-a').value;
             
             if (isManualA) {
                 proj.dates_A = {
-                    ld: document.getElementById('edit-form-ld-a').value,
-                    clean: document.getElementById('edit-form-clean-a').value,
-                    work_start: document.getElementById('edit-form-work-start-a').value,
-                    work_end: document.getElementById('edit-form-work-end-a').value,
-                    inspect: document.getElementById('edit-form-inspect-a').value,
+                    ...manualScheduleA,
                     pt: proj.pt_date_A
                 };
             } else {
@@ -2028,17 +2456,12 @@
             }
 
             // 1/2TK 저장 처리
-            const isManualB = document.getElementById('edit-form-manual-b').checked;
             proj.is_manual_B = isManualB;
             proj.pt_date_B = document.getElementById('edit-form-pt-b').value;
 
             if (isManualB) {
                 proj.dates_B = {
-                    ld: document.getElementById('edit-form-ld-b').value,
-                    clean: document.getElementById('edit-form-clean-b').value,
-                    work_start: document.getElementById('edit-form-work-start-b').value,
-                    work_end: document.getElementById('edit-form-work-end-b').value,
-                    inspect: document.getElementById('edit-form-inspect-b').value,
+                    ...manualScheduleB,
                     pt: proj.pt_date_B
                 };
             } else {
@@ -2096,11 +2519,11 @@
                 reader.onload = function(evt) {
                     try {
                         const parsed = JSON.parse(evt.target.result);
-                        if (parsed && (parsed.projects || Array.isArray(parsed))) {
+                        if (parsed && (Array.isArray(parsed.projects) || Array.isArray(parsed))) {
                             let newProjects = [];
                             let newAnnouncements = [];
                             
-                            if (parsed.projects) {
+                            if (Array.isArray(parsed.projects)) {
                                 newProjects = parsed.projects;
                                 if (parsed.announcements) {
                                     newAnnouncements = parsed.announcements;
@@ -2114,12 +2537,12 @@
                             localStorage.setItem('dome_dock_tank_projects_v90', JSON.stringify(projects));
                             
                             if (newAnnouncements.length > 0) {
-                                announcements = newAnnouncements;
+                                announcements = normalizeAnnouncements(newAnnouncements);
                                 localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
                             }
 
                             if (parsed.memos) {
-                                localStorage.setItem('dome_dock_memos', JSON.stringify(parsed.memos));
+                                localStorage.setItem('dome_dock_memos', JSON.stringify(normalizeMemos(parsed.memos)));
                             }
                             
                             showToast("✅ 백업 파일 데이터가 정상적으로 불러와졌습니다! 화면을 갱신합니다.");
@@ -2151,13 +2574,13 @@
             const text = document.getElementById('data-json-area').value;
             try {
                 const parsed = JSON.parse(text);
-                if (parsed && parsed.projects && parsed.announcements) {
+                if (parsed && Array.isArray(parsed.projects) && parsed.announcements) {
                     projects = parsed.projects;
                     ensureProjectDataIntegrity(projects);
-                    announcements = parsed.announcements;
+                    announcements = normalizeAnnouncements(parsed.announcements);
                     localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
                     if (parsed.memos) {
-                        memos = parsed.memos;
+                        memos = normalizeMemos(parsed.memos);
                         localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
                         renderMemos();
                     }
@@ -2294,15 +2717,25 @@
             }
         ];
 
+        function normalizeMemos(list) {
+            const validColors = ['blue', 'emerald', 'amber', 'rose'];
+            return (Array.isArray(list) ? list : []).map((rawItem, index) => {
+                const item = rawItem || {};
+                const numericId = Number(item.id);
+                return {
+                    id: Number.isFinite(numericId) ? numericId : Date.now() + index,
+                    content: item.content || '',
+                    date: item.date || formatDate(new Date()),
+                    color: validColors.includes(item.color) ? item.color : 'blue',
+                    pinned: Boolean(item.pinned)
+                };
+            });
+        }
+
         // 메모 데이터 로드
         function loadMemos() {
-            const savedMemos = localStorage.getItem('dome_dock_memos');
-            if (savedMemos) {
-                memos = JSON.parse(savedMemos);
-            } else {
-                memos = JSON.parse(JSON.stringify(DEFAULT_MEMOS));
-                localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
-            }
+            memos = normalizeMemos(safeParseStoredJSON('dome_dock_memos', DEFAULT_MEMOS));
+            localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
         }
 
         // 메모 데이터 저장
@@ -2349,13 +2782,15 @@
             container.innerHTML = filteredMemos.map(m => {
                 const config = colorConfig[m.color] || colorConfig.blue;
                 const isEditing = (m.id === editingMemoId);
+                const safeMemoContent = escapeHTML(m.content);
+                const safeMemoDate = escapeHTML(m.date);
 
                 if (isEditing) {
                     return `
                         <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-300 shadow-sm flex flex-col gap-2 transition-all">
                             <textarea id="memo-edit-textarea-${m.id}" rows="3" 
-                                class="w-full bg-transparent resize-none outline-none border-none text-[12px] text-slate-800 placeholder-slate-400 leading-relaxed font-medium focus:ring-0 p-0"
-                            >${m.content}</textarea>
+                                class="w-full bg-transparent resize-none outline-none border-none text-[15px] text-slate-800 placeholder-slate-400 leading-relaxed font-medium focus:ring-0 p-0"
+                            >${safeMemoContent}</textarea>
                             <div class="flex items-center justify-between pt-2 border-t border-slate-200">
                                 <!-- 수정 중 색상 변경 -->
                                 <div class="flex space-x-1">
@@ -2365,8 +2800,8 @@
                                     <button onclick="changeMemoEditColor(${m.id}, 'rose')" class="w-3.5 h-3.5 rounded-full bg-rose-400 border border-slate-300 ${m.color === 'rose' ? 'ring-2 ring-indigo-500' : ''}" title="빨강"></button>
                                 </div>
                                 <div class="flex space-x-1.5">
-                                    <button onclick="cancelEditMemo()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1 rounded-xl text-[10px] font-bold transition">취소</button>
-                                    <button onclick="saveEditMemo(${m.id})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-xl text-[10px] font-black transition shadow-sm active:scale-95">저장</button>
+                                    <button onclick="cancelEditMemo()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-xl text-[12px] font-bold transition">취소</button>
+                                    <button onclick="saveEditMemo(${m.id})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-xl text-[12px] font-black transition shadow-sm active:scale-95">저장</button>
                                 </div>
                             </div>
                         </div>
@@ -2380,10 +2815,10 @@
 
                 return `
                     <div class="p-3.5 rounded-2xl ${cardClass} border transition-all duration-300 shadow-sm relative group flex flex-col gap-1.5">
-                        <div class="flex items-center justify-between text-[10px] text-slate-400">
+                        <div class="flex items-center justify-between text-[12px] text-slate-400">
                             <span class="font-extrabold flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full ${config.dot}"></span>
-                                <span>${m.date}</span>
+                                <span>${safeMemoDate}</span>
                             </span>
                             <div class="flex items-center space-x-2 opacity-50 group-hover:opacity-100 transition-opacity">
                                 <button onclick="togglePinMemo(${m.id})" class="transition ${pinIconClass}" title="${m.pinned ? '고정 해제' : '상단 고정'}">
@@ -2397,7 +2832,7 @@
                                 </button>
                             </div>
                         </div>
-                        <p class="text-[12px] text-slate-700 leading-relaxed font-medium break-all whitespace-pre-line">${escapeHTML(m.content)}</p>
+                        <p class="text-[15px] text-slate-700 leading-relaxed font-medium break-all whitespace-pre-line">${safeMemoContent}</p>
                     </div>
                 `;
             }).join('');
@@ -2405,7 +2840,7 @@
 
         // HTML Escape 헬퍼
         function escapeHTML(str) {
-            return str
+            return String(str ?? '')
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
@@ -2460,12 +2895,9 @@
             showToast("📝 메모판에 신규 메모가 성공적으로 등록되었습니다.");
         }
 
-        // Textarea 안에서 Enter key 눌렀을 때 등록 (Shift + Enter는 줄바꿈)
+        // Textarea 안에서 Enter는 줄바꿈만 수행합니다. 저장은 등록 버튼으로만 실행합니다.
         function handleMemoInputKeydown(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleAddMemo();
-            }
+            return true;
         }
 
         // 메모 고정 토글
