@@ -1132,6 +1132,12 @@
         // 관리자 모드 활성화 상태 여부 (최초 시작은 항상 false)
         let isAdminMode = false;
         const DEFAULT_ADMIN_PASSWORD = '0990';
+        const DATA_API = {
+            loadUrl: './data/schedule.json',
+            saveUrl: '/api/save-schedule',
+            autoRefreshMs: 30000
+        };
+        let sharedDataRefreshTimer = null;
 
         // 1일 셀당 가로 폭 (기본값 44px, 30~120px 가변)
         let colWidth = 44;
@@ -1341,6 +1347,96 @@
             });
         }
 
+        function getDefaultAppData() {
+            return {
+                projects: JSON.parse(JSON.stringify(DEFAULT_10_PROJECTS)),
+                announcements: JSON.parse(JSON.stringify(announcements)),
+                memos: JSON.parse(JSON.stringify(DEFAULT_MEMOS))
+            };
+        }
+
+        function getAppDataSnapshot() {
+            return {
+                projects: projects,
+                announcements: announcements,
+                memos: memos
+            };
+        }
+
+        function persistLocalDataBackup() {
+            localStorage.setItem('dome_dock_tank_projects_v90', JSON.stringify(projects));
+            localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
+            localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
+        }
+
+        function loadLocalDataBackup() {
+            const fallback = getDefaultAppData();
+            const localProjects = safeParseStoredJSON('dome_dock_tank_projects_v90', fallback.projects);
+            const localAnnouncements = safeParseStoredJSON('dome_dock_announcements', fallback.announcements);
+            const localMemos = safeParseStoredJSON('dome_dock_memos', fallback.memos);
+
+            return {
+                projects: Array.isArray(localProjects) ? localProjects : fallback.projects,
+                announcements: Array.isArray(localAnnouncements) ? localAnnouncements : fallback.announcements,
+                memos: Array.isArray(localMemos) ? localMemos : fallback.memos
+            };
+        }
+
+        function migrateProjectsToCurrentYear(projs) {
+            projs.forEach(p => {
+                const yearA = new Date(p.pt_date_A).getFullYear();
+                const yearB = new Date(p.pt_date_B).getFullYear();
+                if (yearA !== CURRENT_YEAR && p.pt_date_A) {
+                    p.pt_date_A = p.pt_date_A.replace(/^\d{4}/, CURRENT_YEAR);
+                }
+                if (yearB !== CURRENT_YEAR && p.pt_date_B) {
+                    p.pt_date_B = p.pt_date_B.replace(/^\d{4}/, CURRENT_YEAR);
+                }
+            });
+        }
+
+        function applyAppData(data) {
+            const fallback = getDefaultAppData();
+            projects = Array.isArray(data?.projects) ? data.projects : fallback.projects;
+            announcements = normalizeAnnouncements(Array.isArray(data?.announcements) ? data.announcements : fallback.announcements);
+            memos = normalizeMemos(Array.isArray(data?.memos) ? data.memos : fallback.memos);
+
+            migrateProjectsToCurrentYear(projects);
+            ensureProjectDataIntegrity(projects);
+            persistLocalDataBackup();
+        }
+
+        async function loadSharedAppData({ silent = false } = {}) {
+            try {
+                const url = `${DATA_API.loadUrl}?v=${Date.now()}`;
+                const response = await fetch(url, { cache: 'no-store' });
+                if (!response.ok) throw new Error(`데이터 로드 실패 (${response.status})`);
+                const data = await response.json();
+                applyAppData(data);
+                if (!silent) showToast("🌐 공용 데이터가 동기화되었습니다.");
+                return true;
+            } catch (err) {
+                console.warn("공용 데이터 로드 실패:", err);
+                applyAppData(loadLocalDataBackup());
+                if (!silent) showToast("ℹ️ 공용 데이터를 불러오지 못해 이 브라우저의 백업 데이터로 시작합니다.");
+                return false;
+            }
+        }
+
+        function startSharedDataAutoRefresh() {
+            if (sharedDataRefreshTimer) clearInterval(sharedDataRefreshTimer);
+            if (!DATA_API.autoRefreshMs) return;
+
+            sharedDataRefreshTimer = setInterval(async () => {
+                if (isAdminMode) return;
+                const loaded = await loadSharedAppData({ silent: true });
+                if (!loaded) return;
+                renderAnnouncements();
+                analyzeAndRender();
+                renderMemos();
+            }, DATA_API.autoRefreshMs);
+        }
+
         function hasHoliday(startStr, endStr) {
             let start = new Date(startStr);
             let end = new Date(endStr);
@@ -1427,7 +1523,7 @@
         }
 
         // 초기 어플리케이션 가동
-        function init() {
+        async function init() {
             // 저장된 colWidth 로드 및 CSS 변수 바인딩
             const savedColWidth = localStorage.getItem('timeline_col_width');
             if (savedColWidth) {
@@ -1461,32 +1557,7 @@
             document.getElementById('live-today-text').innerText = TODAY_STR;
             isAdminMode = false; // 시작 화면 관리자 모드 OFF 고정
 
-            projects = safeParseStoredJSON('dome_dock_tank_projects_v90', DEFAULT_10_PROJECTS);
-            if (!Array.isArray(projects)) {
-                projects = JSON.parse(JSON.stringify(DEFAULT_10_PROJECTS));
-            }
-
-            // 연도가 바뀌었을 때 현재 구동 연도로 기존 데이터 자동 연도 마이그레이션 보정
-            projects.forEach(p => {
-                const yearA = new Date(p.pt_date_A).getFullYear();
-                const yearB = new Date(p.pt_date_B).getFullYear();
-                if (yearA !== CURRENT_YEAR) {
-                    p.pt_date_A = p.pt_date_A.replace(/^\d{4}/, CURRENT_YEAR);
-                }
-                if (yearB !== CURRENT_YEAR) {
-                    p.pt_date_B = p.pt_date_B.replace(/^\d{4}/, CURRENT_YEAR);
-                }
-            });
-
-            // 데이터 구조 무결성 검증 및 수동 날짜 초기화 일괄 수행
-            ensureProjectDataIntegrity(projects);
-
-            // 공지사항 로드
-            announcements = normalizeAnnouncements(safeParseStoredJSON('dome_dock_announcements', announcements));
-            localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
-
-            // 메모판 로드 및 초기화
-            loadMemos();
+            await loadSharedAppData({ silent: true });
 
             // 메모판 접힘 상태 복원
             const isCollapsed = localStorage.getItem('memo_board_collapsed') === 'true';
@@ -1503,6 +1574,7 @@
             analyzeAndRender(); // 먼저 계산 및 dates 세팅
             renderMemos(); // 메모판 렌더링
             updateAdminModeUI(true); // 그 다음 UI 업데이트 및 트랙 렌더링 (토스트 없음)
+            startSharedDataAutoRefresh();
             setTimeout(scrollToToday, 200);
         }
 
@@ -1681,16 +1753,8 @@
         }
 
         function saveState() {
-            localStorage.setItem('dome_dock_tank_projects_v90', JSON.stringify(projects));
-            localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
-            if (typeof memos !== 'undefined') {
-                localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
-            }
-            const backupData = {
-                projects: projects,
-                announcements: announcements,
-                memos: (typeof memos !== 'undefined') ? memos : []
-            };
+            persistLocalDataBackup();
+            const backupData = getAppDataSnapshot();
             document.getElementById('data-json-area').value = JSON.stringify(backupData, null, 2);
         }
 
@@ -2532,18 +2596,11 @@
                                 newProjects = parsed;
                             }
 
-                            projects = newProjects;
-                            ensureProjectDataIntegrity(projects);
-                            localStorage.setItem('dome_dock_tank_projects_v90', JSON.stringify(projects));
-                            
-                            if (newAnnouncements.length > 0) {
-                                announcements = normalizeAnnouncements(newAnnouncements);
-                                localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
-                            }
-
-                            if (parsed.memos) {
-                                localStorage.setItem('dome_dock_memos', JSON.stringify(normalizeMemos(parsed.memos)));
-                            }
+                            applyAppData({
+                                projects: newProjects,
+                                announcements: newAnnouncements.length > 0 ? newAnnouncements : announcements,
+                                memos: parsed.memos || memos
+                            });
                             
                             showToast("✅ 백업 파일 데이터가 정상적으로 불러와졌습니다! 화면을 갱신합니다.");
                             setTimeout(() => {
@@ -2575,22 +2632,18 @@
             try {
                 const parsed = JSON.parse(text);
                 if (parsed && Array.isArray(parsed.projects) && parsed.announcements) {
-                    projects = parsed.projects;
-                    ensureProjectDataIntegrity(projects);
-                    announcements = normalizeAnnouncements(parsed.announcements);
-                    localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
-                    if (parsed.memos) {
-                        memos = normalizeMemos(parsed.memos);
-                        localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
-                        renderMemos();
-                    }
+                    applyAppData(parsed);
                     renderAnnouncements();
                     analyzeAndRender();
+                    renderMemos();
                     showToast("📥 통합 일정 및 공지사항 백업 데이터가 정상 적용되었습니다.");
                 } else if (Array.isArray(parsed)) {
                     // 하위 호환성 유지: 이전 스케줄 단독 데이터인 경우
-                    projects = parsed;
-                    ensureProjectDataIntegrity(projects);
+                    applyAppData({
+                        projects: parsed,
+                        announcements: announcements,
+                        memos: memos
+                    });
                     analyzeAndRender();
                     showToast("📥 스케줄 단독 데이터가 성공적으로 동기화 적용되었습니다.");
                 } else {
@@ -2601,82 +2654,42 @@
             }
         }
 
-        // 🌐 [실서버 SQL DB 연동용 설계 블록]
-        // 1. 서버로부터 최신 스케줄 및 공지사항 JSON 데이터를 비동기로 패치
-        async function fetchServerData() {
-            showToast("🌐 서버로부터 데이터를 조회하는 중입니다...");
-            
-            // 실제 SQL 서버 연동 시 아래 API 주소를 적절한 엔드포인트로 매핑하여 주석을 해제하세요.
-            /*
-            try {
-                const response = await fetch('/api/get-schedule');
-                if (!response.ok) throw new Error('서버 네트워크 오류');
-                const parsed = await response.json();
-                
-                if (parsed && parsed.projects && parsed.announcements) {
-                    projects = parsed.projects;
-                    ensureProjectDataIntegrity(projects);
-                    announcements = parsed.announcements;
-                    
-                    // 로컬스토리지 백업 동기화
-                    localStorage.setItem('dome_dock_tank_projects_v90', JSON.stringify(projects));
-                    localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
-                    
-                    if (parsed.memos) {
-                        memos = parsed.memos;
-                        localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
-                        renderMemos();
-                    }
-                    
-                    renderAnnouncements();
-                    analyzeAndRender();
-                    showToast("📥 SQL 데이터베이스로부터 최신 일정이 실시간 동기화되었습니다!");
-                }
-            } catch (err) {
-                console.error("서버 데이터 로드 실패:", err);
-                showToast("❌ 서버 연동 실패: 백엔드 API 연결 상태를 확인하세요.");
+        // 🌐 공용 JSON/API 데이터 동기화
+        async function fetchServerData(silent = false) {
+            if (!silent) showToast("🌐 공용 데이터를 조회하는 중입니다...");
+
+            const loaded = await loadSharedAppData({ silent: true });
+            if (loaded) {
+                renderAnnouncements();
+                analyzeAndRender();
+                renderMemos();
+                if (!silent) showToast("📥 공용 데이터가 최신 상태로 동기화되었습니다.");
+            } else if (!silent) {
+                showToast("❌ 공용 데이터 로드 실패: DATA_API.loadUrl 경로를 확인하세요.");
             }
-            */
-            
-            // 현재는 백엔드가 준비되지 않았으므로 Mock 안내 처리
-            setTimeout(() => {
-                showToast("ℹ️ 서버 연동 블록이 실행되었습니다. (상세 소스코드는 fetchServerData() 주석을 확인하세요.)");
-            }, 1000);
         }
 
-        // 2. 현재 상태를 서버(SQL DB)에 전송하여 영구 보존
+        // 현재 상태를 서버/API에 전송하여 공용 데이터로 저장
         async function saveServerData() {
-            showToast("🌐 서버에 데이터 저장을 요청하는 중입니다...");
-            
-            const payload = {
-                projects: projects,
-                announcements: announcements,
-                memos: memos
-            };
-            
-            // 실제 SQL 서버 연동 시 아래 API 주소를 적절한 POST 엔드포인트로 매핑하여 주석을 해제하세요.
-            /*
+            const payload = getAppDataSnapshot();
+            saveState();
+            showToast("🌐 공용 저장소에 데이터 저장을 요청하는 중입니다...");
+
             try {
-                const response = await fetch('/api/save-schedule', {
+                const response = await fetch(DATA_API.saveUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
-                
-                if (!response.ok) throw new Error('서버 저장 실패');
-                const result = await response.json();
-                showToast("💾 현재 일정이 SQL 데이터베이스에 성공적으로 안전하게 저장되었습니다!");
+
+                if (!response.ok) throw new Error(`저장 실패 (${response.status})`);
+                showToast("💾 현재 데이터가 공용 저장소에 저장되었습니다.");
             } catch (err) {
-                console.error("서버 데이터 저장 실패:", err);
-                showToast("❌ 서버 저장 실패: 백엔드 API 연결 상태를 확인하세요.");
+                console.error("공용 데이터 저장 실패:", err);
+                showToast("❌ 공용 저장 실패: DATA_API.saveUrl 또는 서버/API 상태를 확인하세요.");
             }
-            */
-            
-            setTimeout(() => {
-                showToast("ℹ️ 서버 저장 블록이 실행되었습니다. (상세 소스코드는 saveServerData() 주석을 확인하세요.)");
-            }, 1000);
         }
 
         // 외부 웹앱 독립 창 호출 함수
