@@ -108,6 +108,22 @@
             transform: translateY(-2px);
             z-index: 5;
         }
+
+        /* 메모판 스크롤바 커스텀 */
+        #memo-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        #memo-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 3px;
+        }
+        #memo-list::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+        }
+        #memo-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen overflow-hidden flex flex-col antialiased selection:bg-slate-200">
@@ -165,8 +181,8 @@
                     <i class="fa-solid fa-plus mr-1"></i>공지생성
                 </button>
             </div>
-            <!-- 공지 리스트 (가로 폭 90% 조정, 4개 초과 시 스크롤 max-h-[275px] 제한, 간격 space-y-2 적용) -->
-            <div id="announcement-board-list" class="flex-1 min-w-0 max-w-[90%] w-full space-y-2 pr-2 max-h-[275px] overflow-y-auto relative">
+            <!-- 공지 리스트 (가로 폭 90% 조정, 3개 초과 시 스크롤 max-h-[210px] 제한, 간격 space-y-2 적용) -->
+            <div id="announcement-board-list" class="flex-1 min-w-0 max-w-[90%] w-full space-y-2 pr-2 max-h-[210px] overflow-y-auto relative">
                 <!-- JS 동적 추가 -->
             </div>
         </div>
@@ -174,8 +190,10 @@
 
     <main class="flex-1 overflow-hidden flex flex-col px-6 py-4 space-y-6 max-w-[1800px] mx-auto w-full">
 
-        <!-- 📊 마일스톤 연간 간트 차트 (365일 관제 격자판 - 탱크 그룹 이중 트랙 지원) -->
-        <section class="flex-1 flex flex-col min-h-0 bg-white border-2 border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+        <!-- 📊 마일스톤 연간 간트 차트 + 메모판 horizontal flex container -->
+        <div class="flex-1 flex flex-col xl:flex-row gap-6 min-h-0 overflow-hidden">
+            <!-- 📊 마일스톤 연간 간트 차트 (365일 관제 격자판 - 탱크 그룹 이중 트랙 지원) -->
+            <section class="flex-1 flex flex-col min-h-0 bg-white border-2 border-slate-200 rounded-3xl overflow-hidden shadow-sm">
             
             <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-4 shrink-0">
                 <div class="flex items-center space-x-3 text-sm font-black text-slate-900">
@@ -188,6 +206,11 @@
                     <!-- 자동 정렬 버튼 (관리자 모드에서만 노출) -->
                     <button id="admin-resolve-btn" onclick="resolveConflicts()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-xl text-xs font-black transition">
                         <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>자동 정렬
+                    </button>
+                    <!-- 메모판 토글 버튼 -->
+                    <button onclick="toggleMemoBoard()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center space-x-1.5 shadow-sm">
+                        <i id="toggle-memo-btn-icon" class="fa-solid fa-square-caret-right text-indigo-600"></i>
+                        <span id="toggle-memo-btn-text">메모판 접기</span>
                     </button>
                 </div>
                 <!-- 범례 아이콘 마커 요약 -->
@@ -205,48 +228,51 @@
             <!-- 🎛️ Gantt Control Toolbar (검색, 배율조절, 정렬, 월별 빠른이동) -->
             <div class="px-5 py-3 border-b border-slate-200 bg-white flex flex-col gap-3 shrink-0">
                 <div class="flex flex-col md:flex-row md:items-center gap-4 w-full">
-                    <!-- Left: Search Box -->
-                    <div class="flex-1 flex items-center justify-start shrink-0">
+                    <!-- Left: Search Box (aligned exactly with the 238px left sticky column, minus 20px padding) -->
+                    <div class="w-full md:w-[218px] shrink-0">
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                                 <i class="fa-solid fa-magnifying-glass text-xs"></i>
                             </span>
-                            <input type="text" id="vessel-search-input" oninput="handleSearchAndSort()" placeholder="호선명 또는 시리즈 검색..." class="w-60 bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 font-bold placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all shadow-sm">
+                            <input type="text" id="vessel-search-input" oninput="handleSearchAndSort()" placeholder="호선명 또는 시리즈 검색..." class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 font-bold placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all shadow-sm">
                         </div>
                     </div>
 
-                    <!-- Middle: TODAY + Date Indicator + Timeline Scale Slider (Centered Group) -->
-                    <div class="flex-1 flex flex-wrap items-center justify-center gap-3">
-                        <!-- 오늘 네비게이션 -->
-                        <button onclick="scrollToToday()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl px-3.5 py-1.5 text-xs font-black transition shadow-sm flex items-center gap-1.5 shrink-0">
-                            <i class="fa-solid fa-crosshairs text-indigo-600"></i> TODAY
-                        </button>
-                        <div class="bg-rose-50 border border-rose-200 rounded-xl px-3.5 py-1.5 text-xs flex items-center space-x-2 text-rose-700 font-extrabold shadow-sm shrink-0">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
-                            </span>
-                            <span id="live-today-text">불러오는 중...</span>
+                    <!-- Right: Flex container spanning the calendar grid dates area -->
+                    <div class="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 md:pl-4">
+                        <!-- Center: TODAY + Date Indicator + Timeline Scale Slider -->
+                        <div class="flex-1 flex flex-wrap items-center justify-center gap-3">
+                            <!-- 오늘 네비게이션 -->
+                            <button onclick="scrollToToday()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl px-3.5 py-1.5 text-xs font-black transition shadow-sm flex items-center gap-1.5 shrink-0">
+                                <i class="fa-solid fa-crosshairs text-indigo-600"></i> TODAY
+                            </button>
+                            <div class="bg-rose-50 border border-rose-200 rounded-xl px-3.5 py-1.5 text-xs flex items-center space-x-2 text-rose-700 font-extrabold shadow-sm shrink-0">
+                                <span class="relative flex h-2 w-2">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                                </span>
+                                <span id="live-today-text">불러오는 중...</span>
+                            </div>
+
+                            <!-- Timeline Scale Slider -->
+                            <div class="bg-slate-50 border border-slate-300 rounded-full px-4 py-1.5 flex items-center space-x-3 text-xs font-black shadow-sm shrink-0">
+                                <span class="text-slate-700"><i class="fa-solid fa-magnifying-glass-plus text-indigo-500 mr-1.5"></i>타임라인 배율:</span>
+                                <input type="range" id="timeline-scale-slider" min="20" max="66" step="1" value="44" oninput="updateTimelineScale(this.value)" class="w-32 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                                <span id="timeline-scale-val" class="text-blue-600 font-black whitespace-nowrap">1320px</span>
+                            </div>
                         </div>
 
-                        <!-- Timeline Scale Slider -->
-                        <div class="bg-slate-50 border border-slate-300 rounded-full px-4 py-1.5 flex items-center space-x-3 text-xs font-black shadow-sm shrink-0">
-                            <span class="text-slate-700"><i class="fa-solid fa-magnifying-glass-plus text-indigo-500 mr-1.5"></i>타임라인 배율:</span>
-                            <input type="range" id="timeline-scale-slider" min="20" max="66" step="1" value="44" oninput="updateTimelineScale(this.value)" class="w-32 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
-                            <span id="timeline-scale-val" class="text-blue-600 font-black whitespace-nowrap">1320px</span>
+                        <!-- Right: Sort Criteria -->
+                        <div class="flex items-center space-x-2 text-xs font-black text-slate-700 shrink-0">
+                            <span>정렬 기준:</span>
+                            <select id="sort-criteria-select" onchange="handleSearchAndSort()" class="bg-white border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 focus:outline-none focus:border-indigo-500 transition-all shadow-sm">
+                                <option value="pt_date_asc">PT 목표일 순 (오름차순)</option>
+                                <option value="pt_date_desc">PT 목표일 순 (내림차순)</option>
+                                <option value="vessel_id_asc">호선명 순</option>
+                                <option value="panel_asc">시리즈 순</option>
+                                <option value="status_desc">수동검토/지연 우선</option>
+                            </select>
                         </div>
-                    </div>
-
-                    <!-- Right: Sort Criteria -->
-                    <div class="flex-1 flex items-center justify-start md:justify-end space-x-2 text-xs font-black text-slate-700 shrink-0">
-                        <span>정렬 기준:</span>
-                        <select id="sort-criteria-select" onchange="handleSearchAndSort()" class="bg-white border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 focus:outline-none focus:border-indigo-500 transition-all shadow-sm">
-                            <option value="pt_date_asc">PT 목표일 순 (오름차순)</option>
-                            <option value="pt_date_desc">PT 목표일 순 (내림차순)</option>
-                            <option value="vessel_id_asc">호선명 순</option>
-                            <option value="panel_asc">시리즈 순</option>
-                            <option value="status_desc">수동검토/지연 우선</option>
-                        </select>
                     </div>
                 </div>
 
@@ -289,6 +315,58 @@
                 </div>
             </div>
         </section>
+
+        <!-- 📝 메모판 (Memo Board) -->
+        <section id="memo-board-section" class="w-full xl:w-[320px] 2xl:w-[360px] flex flex-col min-h-[400px] xl:min-h-0 shrink-0 bg-white border-2 border-slate-200 rounded-3xl p-5 shadow-sm text-slate-800">
+            <!-- Memo Header -->
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 shrink-0">
+                <div class="flex items-center space-x-2">
+                    <span class="text-lg text-amber-500"><i class="fa-solid fa-note-sticky"></i></span>
+                    <h2 class="text-sm font-black tracking-wider text-slate-900">메모판</h2>
+                </div>
+                <span id="memo-status" class="text-[9px] text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i> 자동저장
+                </span>
+            </div>
+
+            <!-- Quick Add Form -->
+            <div class="my-4 shrink-0">
+                <form id="memo-add-form" onsubmit="handleAddMemo(event)" class="space-y-2">
+                    <div class="relative bg-slate-50 border border-slate-200 rounded-2xl focus-within:border-indigo-400 focus-within:bg-white transition-all p-2.5 shadow-inner">
+                        <textarea id="memo-input" rows="2" placeholder="메모를 작성하고 등록하세요..." 
+                            class="w-full bg-transparent resize-none outline-none border-none text-[12px] text-slate-800 placeholder-slate-400 font-medium leading-relaxed"
+                            onkeydown="handleMemoInputKeydown(event)"></textarea>
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-200">
+                            <!-- Memo category/color selector -->
+                            <div class="flex space-x-1.5" id="memo-color-selector">
+                                <button type="button" onclick="selectMemoColor('blue')" class="w-4 h-4 rounded-full bg-blue-400 border border-white/40 ring-2 ring-indigo-500 ring-offset-1 ring-offset-white transition" id="color-btn-blue" title="파랑 (일반)"></button>
+                                <button type="button" onclick="selectMemoColor('emerald')" class="w-4 h-4 rounded-full bg-emerald-400 border border-white/10 transition" id="color-btn-emerald" title="초록 (완료)"></button>
+                                <button type="button" onclick="selectMemoColor('amber')" class="w-4 h-4 rounded-full bg-amber-400 border border-white/10 transition" id="color-btn-amber" title="노랑 (검토)"></button>
+                                <button type="button" onclick="selectMemoColor('rose')" class="w-4 h-4 rounded-full bg-rose-400 border border-white/10 transition" id="color-btn-rose" title="빨강 (긴급)"></button>
+                            </div>
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-xl text-[11px] font-black transition-all shadow-sm flex items-center gap-1 active:scale-95">
+                                <i class="fa-solid fa-plus text-[9px]"></i>등록
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Search Memos -->
+            <div class="mb-3 shrink-0 relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass text-[10px]"></i>
+                </span>
+                <input type="text" id="memo-search" oninput="renderMemos()" placeholder="메모 검색..." 
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-400 transition font-bold shadow-inner">
+            </div>
+
+            <!-- Scrollable Memos List -->
+            <div id="memo-list" class="flex-1 overflow-y-auto pr-1 space-y-3 scrollbar-thin max-h-[300px] xl:max-h-none">
+                <!-- JS동적 추가 -->
+            </div>
+        </section>
+    </div>
 
         <!-- 📥 외부 데이터 연동 제어판 (JSON 데이터 양식 표준화 및 백업 - 관리자 전용) -->
         <section id="external-data-section" class="hidden bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm">
@@ -983,8 +1061,23 @@
                 localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
             }
 
+            // 메모판 로드 및 초기화
+            loadMemos();
+
+            // 메모판 접힘 상태 복원
+            const isCollapsed = localStorage.getItem('memo_board_collapsed') === 'true';
+            const memoSection = document.getElementById('memo-board-section');
+            const btnText = document.getElementById('toggle-memo-btn-text');
+            const btnIcon = document.getElementById('toggle-memo-btn-icon');
+            if (isCollapsed && memoSection) {
+                memoSection.classList.add('hidden');
+                if (btnText) btnText.innerText = "메모판 펼치기";
+                if (btnIcon) btnIcon.className = "fa-solid fa-square-caret-left text-indigo-600";
+            }
+
             renderAnnouncements();
             analyzeAndRender(); // 먼저 계산 및 dates 세팅
+            renderMemos(); // 메모판 렌더링
             updateAdminModeUI(true); // 그 다음 UI 업데이트 및 트랙 렌더링 (토스트 없음)
             setTimeout(scrollToToday, 200);
         }
@@ -1121,9 +1214,13 @@
         function saveState() {
             localStorage.setItem('dome_dock_tank_projects_v90', JSON.stringify(projects));
             localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
+            if (typeof memos !== 'undefined') {
+                localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
+            }
             const backupData = {
                 projects: projects,
-                announcements: announcements
+                announcements: announcements,
+                memos: (typeof memos !== 'undefined') ? memos : []
             };
             document.getElementById('data-json-area').value = JSON.stringify(backupData, null, 2);
         }
@@ -1964,7 +2061,8 @@
         function exportDataToFile() {
             const data = {
                 projects: projects,
-                announcements: announcements
+                announcements: announcements,
+                memos: memos
             };
             const jsonString = JSON.stringify(data, null, 4);
             const blob = new Blob([jsonString], { type: 'application/json' });
@@ -2019,6 +2117,10 @@
                                 announcements = newAnnouncements;
                                 localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
                             }
+
+                            if (parsed.memos) {
+                                localStorage.setItem('dome_dock_memos', JSON.stringify(parsed.memos));
+                            }
                             
                             showToast("✅ 백업 파일 데이터가 정상적으로 불러와졌습니다! 화면을 갱신합니다.");
                             setTimeout(() => {
@@ -2054,6 +2156,11 @@
                     ensureProjectDataIntegrity(projects);
                     announcements = parsed.announcements;
                     localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
+                    if (parsed.memos) {
+                        memos = parsed.memos;
+                        localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
+                        renderMemos();
+                    }
                     renderAnnouncements();
                     analyzeAndRender();
                     showToast("📥 통합 일정 및 공지사항 백업 데이터가 정상 적용되었습니다.");
@@ -2092,6 +2199,12 @@
                     localStorage.setItem('dome_dock_tank_projects_v90', JSON.stringify(projects));
                     localStorage.setItem('dome_dock_announcements', JSON.stringify(announcements));
                     
+                    if (parsed.memos) {
+                        memos = parsed.memos;
+                        localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
+                        renderMemos();
+                    }
+                    
                     renderAnnouncements();
                     analyzeAndRender();
                     showToast("📥 SQL 데이터베이스로부터 최신 일정이 실시간 동기화되었습니다!");
@@ -2114,7 +2227,8 @@
             
             const payload = {
                 projects: projects,
-                announcements: announcements
+                announcements: announcements,
+                memos: memos
             };
             
             // 실제 SQL 서버 연동 시 아래 API 주소를 적절한 POST 엔드포인트로 매핑하여 주석을 해제하세요.
@@ -2148,14 +2262,309 @@
             showToast("🌐 독립된 새 창으로 외부 웹앱을 호출했습니다.");
         }
 
+        // ==========================================
+        // 📝 메모판 (Memo Board) 비즈니스 로직
+        // ==========================================
+        let memos = [];
+        let selectedMemoColor = 'blue';
+        let editingMemoId = null;
+
+        // 초기 메모 데모 데이터
+        const DEFAULT_MEMOS = [
+            {
+                id: 1,
+                content: "📌 돔커버 공정 관리 주요 안내:\n- 일요일 및 공휴일은 모든 공정이 진행 불가합니다.\n- 검사는 평일(월~금)에만 진행되며, 토요일인 경우 전날 금요일로 일정이 당겨집니다.",
+                date: "2026-05-30 13:00",
+                color: "blue",
+                pinned: true
+            },
+            {
+                id: 2,
+                content: "⚠️ 수동 검토 필요 호선:\n- HULL (3102) Bow Side 및 ENI (2686) 3/4(P) 호선의 일정이 겹치는지 관리자 모드에서 '자동 정렬'을 실행하여 확인해 보세요.",
+                date: "2026-05-30 13:15",
+                color: "amber",
+                pinned: false
+            },
+            {
+                id: 3,
+                content: "✅ 생산 모니터링 웹앱 링크 연동 완료.\n직무교육일정 및 생산 모니터링 메뉴가 정상 연동되었습니다.",
+                date: "2026-05-30 13:20",
+                color: "emerald",
+                pinned: false
+            }
+        ];
+
+        // 메모 데이터 로드
+        function loadMemos() {
+            const savedMemos = localStorage.getItem('dome_dock_memos');
+            if (savedMemos) {
+                memos = JSON.parse(savedMemos);
+            } else {
+                memos = JSON.parse(JSON.stringify(DEFAULT_MEMOS));
+                localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
+            }
+        }
+
+        // 메모 데이터 저장
+        function saveMemos() {
+            localStorage.setItem('dome_dock_memos', JSON.stringify(memos));
+            // 통합 데이터 전송 백업 JSON 영역 갱신
+            saveState();
+        }
+
+        // 메모 렌더링 함수
+        function renderMemos() {
+            const container = document.getElementById('memo-list');
+            if (!container) return;
+
+            const searchQuery = document.getElementById('memo-search').value.trim().toLowerCase();
+
+            // 필터링 적용
+            let filteredMemos = memos.filter(m => m.content.toLowerCase().includes(searchQuery));
+
+            // 정렬 적용 (고정 메모 상단 -> 그 다음은 작성일 역순/id 역순)
+            filteredMemos.sort((a, b) => {
+                if (a.pinned && !b.pinned) return -1;
+                if (!a.pinned && b.pinned) return 1;
+                return b.id - a.id;
+            });
+
+            if (filteredMemos.length === 0) {
+                container.innerHTML = `
+                    <div class="text-slate-400 text-center py-8 text-xs font-bold">
+                        <i class="fa-solid fa-note-sticky text-xl mb-1.5 block"></i>
+                        작성된 메모가 없습니다.
+                    </div>
+                `;
+                return;
+            }
+
+            const colorConfig = {
+                blue: { dot: 'bg-blue-500', card: 'bg-slate-50 border-slate-200 hover:bg-slate-100/70' },
+                emerald: { dot: 'bg-emerald-500', card: 'bg-emerald-50/40 border-emerald-200 hover:bg-emerald-50/70' },
+                amber: { dot: 'bg-amber-500', card: 'bg-amber-50/40 border-amber-200 hover:bg-amber-50/70' },
+                rose: { dot: 'bg-rose-500', card: 'bg-rose-50/40 border-rose-200 hover:bg-rose-50/70' }
+            };
+
+            container.innerHTML = filteredMemos.map(m => {
+                const config = colorConfig[m.color] || colorConfig.blue;
+                const isEditing = (m.id === editingMemoId);
+
+                if (isEditing) {
+                    return `
+                        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-300 shadow-sm flex flex-col gap-2 transition-all">
+                            <textarea id="memo-edit-textarea-${m.id}" rows="3" 
+                                class="w-full bg-transparent resize-none outline-none border-none text-[12px] text-slate-800 placeholder-slate-400 leading-relaxed font-medium focus:ring-0 p-0"
+                            >${m.content}</textarea>
+                            <div class="flex items-center justify-between pt-2 border-t border-slate-200">
+                                <!-- 수정 중 색상 변경 -->
+                                <div class="flex space-x-1">
+                                    <button onclick="changeMemoEditColor(${m.id}, 'blue')" class="w-3.5 h-3.5 rounded-full bg-blue-400 border border-slate-300 ${m.color === 'blue' ? 'ring-2 ring-indigo-500' : ''}" title="파랑"></button>
+                                    <button onclick="changeMemoEditColor(${m.id}, 'emerald')" class="w-3.5 h-3.5 rounded-full bg-emerald-400 border border-slate-300 ${m.color === 'emerald' ? 'ring-2 ring-indigo-500' : ''}" title="초록"></button>
+                                    <button onclick="changeMemoEditColor(${m.id}, 'amber')" class="w-3.5 h-3.5 rounded-full bg-amber-400 border border-slate-300 ${m.color === 'amber' ? 'ring-2 ring-indigo-500' : ''}" title="노랑"></button>
+                                    <button onclick="changeMemoEditColor(${m.id}, 'rose')" class="w-3.5 h-3.5 rounded-full bg-rose-400 border border-slate-300 ${m.color === 'rose' ? 'ring-2 ring-indigo-500' : ''}" title="빨강"></button>
+                                </div>
+                                <div class="flex space-x-1.5">
+                                    <button onclick="cancelEditMemo()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1 rounded-xl text-[10px] font-bold transition">취소</button>
+                                    <button onclick="saveEditMemo(${m.id})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-xl text-[10px] font-black transition shadow-sm active:scale-95">저장</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const pinIconClass = m.pinned ? 'text-amber-500 scale-110' : 'text-slate-300 hover:text-slate-600';
+                const cardClass = m.pinned 
+                    ? 'bg-slate-100 border-slate-300 hover:bg-slate-150 shadow-sm ring-1 ring-slate-200' 
+                    : config.card;
+
+                return `
+                    <div class="p-3.5 rounded-2xl ${cardClass} border transition-all duration-300 shadow-sm relative group flex flex-col gap-1.5">
+                        <div class="flex items-center justify-between text-[10px] text-slate-400">
+                            <span class="font-extrabold flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full ${config.dot}"></span>
+                                <span>${m.date}</span>
+                            </span>
+                            <div class="flex items-center space-x-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                                <button onclick="togglePinMemo(${m.id})" class="transition ${pinIconClass}" title="${m.pinned ? '고정 해제' : '상단 고정'}">
+                                    <i class="fa-solid fa-thumbtack"></i>
+                                </button>
+                                <button onclick="startEditMemo(${m.id})" class="hover:text-indigo-600 transition" title="수정">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteMemo(${m.id})" class="hover:text-rose-600 transition" title="삭제">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-[12px] text-slate-700 leading-relaxed font-medium break-all whitespace-pre-line">${escapeHTML(m.content)}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // HTML Escape 헬퍼
+        function escapeHTML(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // 신규 메모 등록 버튼 색상 선택 처리
+        function selectMemoColor(color) {
+            selectedMemoColor = color;
+            const colors = ['blue', 'emerald', 'amber', 'rose'];
+            colors.forEach(c => {
+                const btn = document.getElementById(`color-btn-${c}`);
+                if (!btn) return;
+                if (c === color) {
+                    btn.className = `w-4 h-4 rounded-full bg-${c}-400 border border-white/40 ring-2 ring-indigo-500 ring-offset-1 ring-offset-white transition`;
+                } else {
+                    btn.className = `w-4 h-4 rounded-full bg-${c}-400 border border-slate-200 transition`;
+                }
+            });
+        }
+
+        // 메모 추가 실행
+        function handleAddMemo(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('memo-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const dateStr = `${y}-${m}-${d} ${hh}:${mm}`;
+
+            const newMemo = {
+                id: Date.now(),
+                content: text,
+                date: dateStr,
+                color: selectedMemoColor,
+                pinned: false
+            };
+
+            memos.unshift(newMemo);
+            saveMemos();
+            renderMemos();
+
+            // 입력 칸 초기화
+            input.value = '';
+            showToast("📝 메모판에 신규 메모가 성공적으로 등록되었습니다.");
+        }
+
+        // Textarea 안에서 Enter key 눌렀을 때 등록 (Shift + Enter는 줄바꿈)
+        function handleMemoInputKeydown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleAddMemo();
+            }
+        }
+
+        // 메모 고정 토글
+        function togglePinMemo(id) {
+            const memo = memos.find(m => m.id === id);
+            if (!memo) return;
+
+            memo.pinned = !memo.pinned;
+            saveMemos();
+            renderMemos();
+            showToast(memo.pinned ? "📌 메모가 상단에 고정되었습니다." : "🔓 메모 고정이 해제되었습니다.");
+        }
+
+        // 메모 수정 시작
+        function startEditMemo(id) {
+            editingMemoId = id;
+            renderMemos();
+        }
+
+        // 메모 수정 취소
+        function cancelEditMemo() {
+            editingMemoId = null;
+            renderMemos();
+        }
+
+        // 메모 수정 중 색상 바로 변경
+        function changeMemoEditColor(id, color) {
+            const memo = memos.find(m => m.id === id);
+            if (!memo) return;
+            memo.color = color;
+            renderMemos(); // 편집 중 상태 유지하면서 렌더
+        }
+
+        // 메모 수정 완료 저장
+        function saveEditMemo(id) {
+            const textarea = document.getElementById(`memo-edit-textarea-${id}`);
+            if (!textarea) return;
+
+            const text = textarea.value.trim();
+            if (!text) {
+                showToast("⚠️ 메모 내용을 입력해주세요.");
+                return;
+            }
+
+            const memo = memos.find(m => m.id === id);
+            if (!memo) return;
+
+            memo.content = text;
+            editingMemoId = null;
+            saveMemos();
+            renderMemos();
+            showToast("✏️ 메모 수정사항이 저장되었습니다.");
+        }
+
+        // 메모 삭제
+        function deleteMemo(id) {
+            memos = memos.filter(m => m.id !== id);
+            saveMemos();
+            renderMemos();
+            showToast("🗑️ 메모가 성공적으로 삭제되었습니다.");
+        }
+
         // Toast 알림 전용 함수
         function showToast(msg) {
             const toast = document.getElementById('toast-notif');
-            document.getElementById('toast-msg').innerText = msg;
-            toast.classList.remove('hidden');
+            if (toast) {
+                document.getElementById('toast-msg').innerText = msg;
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // 메모판 접기/펼치기 토글 함수
+        function toggleMemoBoard() {
+            const memoSection = document.getElementById('memo-board-section');
+            const btnText = document.getElementById('toggle-memo-btn-text');
+            const btnIcon = document.getElementById('toggle-memo-btn-icon');
+            if (!memoSection) return;
+
+            if (memoSection.classList.contains('hidden')) {
+                memoSection.classList.remove('hidden');
+                if (btnText) btnText.innerText = "메모판 접기";
+                if (btnIcon) btnIcon.className = "fa-solid fa-square-caret-right text-indigo-600";
+                localStorage.setItem('memo_board_collapsed', 'false');
+                showToast("📝 메모판이 펼쳐졌습니다.");
+            } else {
+                memoSection.classList.add('hidden');
+                if (btnText) btnText.innerText = "메모판 펼치기";
+                if (btnIcon) btnIcon.className = "fa-solid fa-square-caret-left text-indigo-600";
+                localStorage.setItem('memo_board_collapsed', 'true');
+                showToast("📁 메모판이 접혔습니다. 차트 공간이 최대화됩니다.");
+            }
+            
+            // 타임라인 오늘 가이드라인 등 가로 폭 재계산 보정
             setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3000);
+                renderTimelineTracks();
+            }, 150);
         }
 
         window.onload = init;
