@@ -1134,10 +1134,8 @@
         const DEFAULT_ADMIN_PASSWORD = '0990';
         const DATA_API = {
             loadUrl: './data/schedule.json',
-            saveUrl: '/api/save-schedule',
-            autoRefreshMs: 30000
+            saveUrl: '/api/save-schedule'
         };
-        let sharedDataRefreshTimer = null;
 
         // 1일 셀당 가로 폭 (기본값 44px, 30~120px 가변)
         let colWidth = 44;
@@ -1423,20 +1421,6 @@
             }
         }
 
-        function startSharedDataAutoRefresh() {
-            if (sharedDataRefreshTimer) clearInterval(sharedDataRefreshTimer);
-            if (!DATA_API.autoRefreshMs) return;
-
-            sharedDataRefreshTimer = setInterval(async () => {
-                if (isAdminMode) return;
-                const loaded = await loadSharedAppData({ silent: true });
-                if (!loaded) return;
-                renderAnnouncements();
-                analyzeAndRender();
-                renderMemos();
-            }, DATA_API.autoRefreshMs);
-        }
-
         function hasHoliday(startStr, endStr) {
             let start = new Date(startStr);
             let end = new Date(endStr);
@@ -1574,7 +1558,6 @@
             analyzeAndRender(); // 먼저 계산 및 dates 세팅
             renderMemos(); // 메모판 렌더링
             updateAdminModeUI(true); // 그 다음 UI 업데이트 및 트랙 렌더링 (토스트 없음)
-            startSharedDataAutoRefresh();
             setTimeout(scrollToToday, 200);
         }
 
