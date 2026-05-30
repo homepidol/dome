@@ -125,26 +125,12 @@
                         <p class="text-xs text-slate-600 font-bold">copyright 2026.5.29 ch.s.Park</p>
                     </div>
                 </div>
-                
-                <!-- 오늘로 이동 및 오늘 날짜 연동 인디케이터 (왼쪽 타이틀 옆으로 이동) -->
-                <div class="flex items-center gap-2 md:ml-4">
-                    <button onclick="scrollToToday()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl px-4 py-2 text-xs font-black transition shadow-sm">
-                        <i class="fa-solid fa-crosshairs mr-1"></i> 오늘로 이동
-                    </button>
-                    <div class="bg-rose-50 border border-rose-200 rounded-xl px-4 py-2 text-xs flex items-center space-x-2 text-rose-700 font-extrabold shadow-sm">
-                        <span class="relative flex h-3 w-3">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-600"></span>
-                        </span>
-                        <span id="live-today-text">오늘: 불러오는 중...</span>
-                    </div>
-                </div>
             </div>
             
             <!-- 실시간 오늘 날짜 연동 인디케이터, 관리자 모드 토글, 외부 웹앱 호출 -->
             <div class="flex flex-wrap items-center gap-3">
                 <!-- 🌐 외부 웹앱 호출 독립 버튼 2개 -->
-                <button onclick="openExternalApp('https://homepidol.github.io/EDU2')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl px-3 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
+                <button onclick="openExternalApp('edu_schedule.html')" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl px-3 py-2 text-xs font-black transition shadow-sm flex items-center space-x-1.5">
                     <i class="fa-solid fa-arrow-up-right-from-square text-indigo-600"></i>
                     <span>직무교육일정</span>
                 </button>
@@ -218,9 +204,9 @@
 
             <!-- 🎛️ Gantt Control Toolbar (검색, 배율조절, 정렬, 월별 빠른이동) -->
             <div class="px-5 py-3 border-b border-slate-200 bg-white flex flex-col gap-3 shrink-0">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex flex-col md:flex-row md:items-center gap-4 w-full">
                     <!-- Left: Search Box -->
-                    <div class="flex items-center space-x-2">
+                    <div class="flex-1 flex items-center justify-start shrink-0">
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                                 <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -229,9 +215,22 @@
                         </div>
                     </div>
 
-                    <!-- Middle: Timeline Scale Slider -->
-                    <div class="flex items-center justify-center">
-                        <div class="bg-slate-50 border border-slate-300 rounded-full px-4 py-1.5 flex items-center space-x-3 text-xs font-black shadow-sm">
+                    <!-- Middle: TODAY + Date Indicator + Timeline Scale Slider (Centered Group) -->
+                    <div class="flex-1 flex flex-wrap items-center justify-center gap-3">
+                        <!-- 오늘 네비게이션 -->
+                        <button onclick="scrollToToday()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl px-3.5 py-1.5 text-xs font-black transition shadow-sm flex items-center gap-1.5 shrink-0">
+                            <i class="fa-solid fa-crosshairs text-indigo-600"></i> TODAY
+                        </button>
+                        <div class="bg-rose-50 border border-rose-200 rounded-xl px-3.5 py-1.5 text-xs flex items-center space-x-2 text-rose-700 font-extrabold shadow-sm shrink-0">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                            </span>
+                            <span id="live-today-text">불러오는 중...</span>
+                        </div>
+
+                        <!-- Timeline Scale Slider -->
+                        <div class="bg-slate-50 border border-slate-300 rounded-full px-4 py-1.5 flex items-center space-x-3 text-xs font-black shadow-sm shrink-0">
                             <span class="text-slate-700"><i class="fa-solid fa-magnifying-glass-plus text-indigo-500 mr-1.5"></i>타임라인 배율:</span>
                             <input type="range" id="timeline-scale-slider" min="20" max="66" step="1" value="44" oninput="updateTimelineScale(this.value)" class="w-32 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
                             <span id="timeline-scale-val" class="text-blue-600 font-black whitespace-nowrap">1320px</span>
@@ -239,7 +238,7 @@
                     </div>
 
                     <!-- Right: Sort Criteria -->
-                    <div class="flex items-center space-x-2 text-xs font-black text-slate-700">
+                    <div class="flex-1 flex items-center justify-start md:justify-end space-x-2 text-xs font-black text-slate-700 shrink-0">
                         <span>정렬 기준:</span>
                         <select id="sort-criteria-select" onchange="handleSearchAndSort()" class="bg-white border border-slate-300 rounded-xl px-3 py-1.5 font-bold text-slate-800 focus:outline-none focus:border-indigo-500 transition-all shadow-sm">
                             <option value="pt_date_asc">PT 목표일 순 (오름차순)</option>
@@ -250,8 +249,8 @@
                         </select>
                     </div>
                 </div>
-                
-                <!-- 월별 빠른 이동 숏컷 (디자인 매칭) -->
+
+                <!-- 2행: 월별 빠른 이동 숏컷 -->
                 <div class="border-t border-slate-100 pt-2 flex items-center justify-between gap-3 text-xs font-black">
                     <span class="text-slate-500 shrink-0 flex items-center"><i class="fa-solid fa-calendar-days text-indigo-500 mr-1.5"></i>월별 빠른 이동:</span>
                     <div class="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
@@ -951,7 +950,7 @@
             const containerWidth = (DAY_COUNT * colWidth) + 238 + 32;
             document.getElementById('timeline-inner-container').style.width = `${containerWidth}px`;
 
-            document.getElementById('live-today-text').innerText = `오늘: ${TODAY_STR}`;
+            document.getElementById('live-today-text').innerText = TODAY_STR;
             isAdminMode = false; // 시작 화면 관리자 모드 OFF 고정
 
             const savedProjects = localStorage.getItem('dome_dock_tank_projects_v90');
